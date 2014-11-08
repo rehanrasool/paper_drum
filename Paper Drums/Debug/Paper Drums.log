@@ -1,0 +1,17 @@
+﻿Build started 11/7/2014 6:42:27 PM.
+     1>Project "C:\workspaces\C++\Paper Drums\Paper Drums\Paper Drums.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Visual Studio 2013\VC\bin\CL.exe /c /IC:\workspaces\opencv\build\include /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Source.cpp stdafx.cpp
+         Source.cpp
+         Generating Code...
+         Skipping... (no relevant changes detected)
+         stdafx.cpp
+     1>FileTracker : error FTK1013: could not find unicode byte order marker in the file tracking log file: C:\workspaces\C++\Paper Drums\Paper Drums\Debug\Paper Drums.tlog\CL.read.1.tlog. The tracking data is invalid.
+         
+     1>FileTracker : error FTK1013: could not find unicode byte order marker in the file tracking log file: C:\workspaces\C++\Paper Drums\Paper Drums\Debug\Paper Drums.tlog\CL.write.1.tlog. The tracking data is invalid.
+         
+     1>Done Building Project "C:\workspaces\C++\Paper Drums\Paper Drums\Paper Drums.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:00.61
