@@ -1,5 +1,5 @@
 /**
-Author : Omar Waheed, Rehan Rasool check
+Author : Omar Waheed, Rehan Rasool
 */
 
 #include "stdafx.h"
