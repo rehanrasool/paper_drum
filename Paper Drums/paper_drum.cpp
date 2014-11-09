@@ -4,6 +4,7 @@ Author : Omar Waheed, Rehan Rasool
 
 #include "stdafx.h"
 #include <iostream>
+#include <Windows.h>
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -34,7 +35,9 @@ int thresholdOfDiffMatrix = 30;
 int blurQuantity = 1;
 /*new*/
 int redThreshold = 0;
-/*new*/
+int largestRedArea = 1;
+int currentRedArea = 1;
+/*New*/
 
 
 int main(int argc, char* argv[])
@@ -75,6 +78,7 @@ int main(int argc, char* argv[])
 	/*NEW*/
 	Point red;
 	vector<Point> outline;
+	/*NEW*/
 
 	char directory[128] = { '\0' };
 	directory[0] = '.';
@@ -125,8 +129,15 @@ int main(int argc, char* argv[])
 			timeStamp = (float)abs(differenceTime % 100);
 
 			sprintf_s(filename, "%s/frame_%04d.jpg", directory, frameNumber);
-			computeDifferenceOfFrames(view, previousFrame, diffMatrix); // computes difference of previous and current frame
+			int percentAreaCoveredRed = (currentRedArea * 100) / largestRedArea;
+
+			if (percentAreaCoveredRed >= 30 && percentAreaCoveredRed <= 60){
+				PlaySound("sound/snare_hit.wav", NULL, SND_ASYNC);
+				cout << "HIT!";
+			}
 			/*
+			computeDifferenceOfFrames(view, previousFrame, diffMatrix); // computes difference of previous and current frame
+			
 			threshold(diffMatrix, diffMatrix, thresholdOfDiffMatrix, 40, CV_THRESH_BINARY); // threhold to remove noise
 			smoothImage(diffMatrix, blurQuantity);
 			updateMotionHistory(diffMatrix, motionHistory, (timeStamp), MHI_DURATION); // update motion history
@@ -202,6 +213,9 @@ int main(int argc, char* argv[])
 		if (key == ' ')
 		{
 			bRecording = !bRecording;
+		}
+		if (key == 'd'){ // when threshold is good then press d i.e done
+			largestRedArea = currentRedArea;
 		}
 		if (key == 'q')
 		{
@@ -310,6 +324,7 @@ bool findLargestRedObject(Mat& view, Point& location, vector<Point>& outline, in
 			largestArea = tempArea;
 			largestIndex = i;
 			largestCenter = tempCenter;
+			currentRedArea = largestArea;
 		}
 	}
 	location = largestCenter;
