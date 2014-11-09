@@ -21,8 +21,10 @@ using namespace std;
 
 void computeObjectAreaAndCenter(vector<Point>& outline, double& area, Point& center);
 bool findLargestRedObject(Mat& view, Point& location, vector<Point>& outline, int redThreshold);
+bool findLargestBlueObject(Mat& view, Point& location, vector<Point>& outline, int blueThreshold);
 void drawOutline(Mat& image, vector<Point>& outline);
 void onTrackbarRed(int value, void* data);
+void onTrackbarBlue(int value, void* data);
 /*new end*/
 
 void convertToGrayScale(Mat& frame); // converts the image to grayscale (1 channel)
@@ -37,6 +39,19 @@ int blurQuantity = 1;
 int redThreshold = 0;
 int largestRedArea = 1;
 int currentRedArea = 1;
+
+int blueThreshold = 0;
+int largestBlueArea = 1;
+int currentBlueArea = 1;
+
+int iLowH = 0;
+int iHighH = 179;
+
+int iLowS = 0;
+int iHighS = 255;
+
+int iLowV = 0;
+int iHighV = 255;
 /*New*/
 
 
@@ -51,16 +66,14 @@ int main(int argc, char* argv[])
 	}
 
 	namedWindow("Camera View", 1);
+	namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control" -> controls for HSV values
+
 	// http://docs.opencv.org/doc/tutorials/objdetect/cascade_classifier/cascade_classifier.html
 
 	int smoothSlider;
 	int smoothSliderMax = 100;
 
-	Mat view, view0;
-	Mat previousFrame;
-
-	Mat mask;
-	Mat orientation;
+	Mat view, view0, imgThresholded, imgHSV, mask, orientation, previousFrame;
 	float timeStamp = 0;
 	Mat motionHistory;
 	Mat segMask;
@@ -77,7 +90,9 @@ int main(int argc, char* argv[])
 	time_t timer;
 	/*NEW*/
 	Point red;
-	vector<Point> outline;
+	vector<Point> outlineRed;
+	Point blue;
+	vector<Point> outlineBlue;
 	/*NEW*/
 
 	char directory[128] = { '\0' };
@@ -95,6 +110,18 @@ int main(int argc, char* argv[])
 	createTrackbar("threshold", "Camera View", &smoothSlider, smoothSliderMax, onTrackbar);
 	createTrackbar("Blur", "Camera View", &smoothSlider, smoothSliderMax, onTrackbar2);
 	createTrackbar("Red Threshold", "Camera View", &redThreshold, 255, onTrackbarRed);
+	createTrackbar("Blue Threshold", "Camera View", &blueThreshold, 255, onTrackbarBlue);
+
+	/*Trackers for HSV color detection*/
+	cvCreateTrackbar("LowH", "Control", &iLowH, 179); //Hue (0 - 179)
+	cvCreateTrackbar("HighH", "Control", &iHighH, 179);
+
+	cvCreateTrackbar("LowS", "Control", &iLowS, 255); //Saturation (0 - 255)
+	cvCreateTrackbar("HighS", "Control", &iHighS, 255);
+
+	cvCreateTrackbar("LowV", "Control", &iLowV, 255); //Value (0 - 255)
+	cvCreateTrackbar("HighV", "Control", &iHighV, 255);
+	/*HSV trackers end*/
 	// initialze queue with 5 values
 	for (int i = 0; i < 4; i++){
 		historyQueue.push_front("no output");
@@ -107,14 +134,15 @@ int main(int argc, char* argv[])
 	onTrackbar(30, NULL);
 	onTrackbar2(1, NULL);
 	onTrackbarRed(0, NULL);
+	onTrackbarBlue(0, NULL);
 
 	while (capture.isOpened())
 	{
-
+		
 		view.copyTo(previousFrame);// saves the previous frame
 		capture.read(view0);
 		view0.copyTo(view);
-
+		cvtColor(view, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
 		motionHistory = cv::Mat::zeros(view.rows, view.cols, CV_32FC1);//
 		mask = cv::Mat::zeros(view.rows, view.cols, CV_8UC1);
 		orientation = cv::Mat::zeros(view.rows, view.cols, CV_32FC1);
@@ -123,11 +151,13 @@ int main(int argc, char* argv[])
 		if (bRecording)
 		{
 
-			findLargestRedObject(view, red, outline, redThreshold);
-			drawOutline(view0, outline);
+			findLargestRedObject(view, red, outlineRed, redThreshold);
+			findLargestBlueObject(view, blue, outlineBlue, blueThreshold);
+			drawOutline(view0, outlineRed);
+			drawOutline(view0, outlineBlue);
 			differenceTime = starttime - time(&timer); // get time difference from start
 			timeStamp = (float)abs(differenceTime % 100);
-
+			inRange(imgHSV, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imgThresholded); //Threshold the image
 			sprintf_s(filename, "%s/frame_%04d.jpg", directory, frameNumber);
 			int percentAreaCoveredRed = (currentRedArea * 100) / largestRedArea;
 
@@ -196,6 +226,7 @@ int main(int argc, char* argv[])
 			imwrite(filename, view0); // uncomment this to save a series of frames of detected object
 			MOTION*/
 			imshow("view0", view0);
+			imshow("Thresholded Image", imgThresholded); //show the thresholded image
 			frameNumber++;
 		}
 
@@ -285,6 +316,23 @@ void onTrackbarRed(int value, void* data)
 
 }
 
+
+void onTrackbarBlue(int value, void* data)
+{
+
+	blueThreshold = value;
+
+}
+
+void drawOutline(Mat& image, vector<Point>& outline)
+{
+	int numPoints = outline.size() - 1;
+	for (int f = 0; f<numPoints; f++)
+	{
+		line(image, outline[f], outline[f + 1], Scalar(255, 0, 0), 3);
+	}
+}
+
 bool findLargestRedObject(Mat& view, Point& location, vector<Point>& outline, int redThreshold)
 {
 	//allocate some images to store intermediate results
@@ -365,12 +413,71 @@ void computeObjectAreaAndCenter(vector<Point>& outline, double& area, Point& cen
 	center.y = (objectProperties.m01 / area);
 }
 
-
-void drawOutline(Mat& image, vector<Point>& outline)
+bool findLargestBlueObject(Mat& view, Point& location, vector<Point>& outline, int blueThreshold)
 {
-	int numPoints = outline.size() - 1;
-	for (int f = 0; f<numPoints; f++)
+	//allocate some images to store intermediate results
+	vector<Mat> YCrCb;
+	YCrCb.push_back(Mat(view.rows, view.cols, CV_8UC3));
+	vector<Mat> justBlue;
+	justBlue.push_back(Mat(view.rows, view.cols, CV_8UC1));
+	vector<Mat> displayBlue;
+	displayBlue.push_back(Mat(view.rows, view.cols, CV_8UC3));
+
+	//Switch color spaces to YCrCb so we can detect red objects even if they are dark
+	cvtColor(view, YCrCb[0], CV_BGR2YCrCb);
+
+	//Pull out just the red channel
+	int extractBlue[6] = { 2, 0, 2, 1, 2, 2 };
+	mixChannels(&(YCrCb[0]), 1, &(justBlue[0]), 1, extractBlue, 1);
+
+	// Threshold the red object (with the threshold from the slider)
+	threshold(justBlue[0], justBlue[0], blueThreshold, 255, CV_THRESH_BINARY);
+	vector<vector<Point>> objectContours;
+	vector<Vec4i> dummy;
+
+	//Find all of the contiguous image regions
+	findContours(justBlue[0], objectContours, dummy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+
+	//find the largest object
+	int largestArea(-1), largestIndex(-1);
+	Point largestCenter;
+	for (int i = 0; i<objectContours.size(); i++)
 	{
-		line(image, outline[f], outline[f + 1], Scalar(255, 0, 0), 3);
+		Point tempCenter;
+		double tempArea;
+		computeObjectAreaAndCenter(objectContours[i], tempArea, tempCenter);
+
+		if (tempArea > largestArea)
+		{
+			largestArea = tempArea;
+			largestIndex = i;
+			largestCenter = tempCenter;
+			currentRedArea = largestArea;
+		}
 	}
+	location = largestCenter;
+	if (largestIndex >= 0)
+	{
+		outline = objectContours[largestIndex];
+	}
+
+	//Construct an image for display that shows the red channel as gray
+	mixChannels(&(YCrCb[0]), 1, &(displayBlue[0]), 1, extractBlue, 3);
+	if (largestIndex >= 0)
+	{
+		//put a red circle around the red object
+		circle(displayBlue[0], largestCenter, std::min(double(view.cols) / 2, sqrt(largestArea)), Scalar(0, 0, 255), 1);
+	}
+	imshow("Just bluee", displayBlue[0]);
+
+
+	if (largestIndex >= 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
 }
