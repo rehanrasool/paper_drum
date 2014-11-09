@@ -37,6 +37,15 @@ int blurQuantity = 1;
 int redThreshold = 0;
 int largestRedArea = 1;
 int currentRedArea = 1;
+
+int iLowH = 0;
+int iHighH = 179;
+
+int iLowS = 0;
+int iHighS = 255;
+
+int iLowV = 0;
+int iHighV = 255;
 /*New*/
 
 
@@ -51,16 +60,14 @@ int main(int argc, char* argv[])
 	}
 
 	namedWindow("Camera View", 1);
+	namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control" -> controls for HSV values
+
 	// http://docs.opencv.org/doc/tutorials/objdetect/cascade_classifier/cascade_classifier.html
 
 	int smoothSlider;
 	int smoothSliderMax = 100;
 
-	Mat view, view0;
-	Mat previousFrame;
-
-	Mat mask;
-	Mat orientation;
+	Mat view, view0, imgThresholded, imgHSV, mask, orientation, previousFrame;
 	float timeStamp = 0;
 	Mat motionHistory;
 	Mat segMask;
@@ -95,6 +102,17 @@ int main(int argc, char* argv[])
 	createTrackbar("threshold", "Camera View", &smoothSlider, smoothSliderMax, onTrackbar);
 	createTrackbar("Blur", "Camera View", &smoothSlider, smoothSliderMax, onTrackbar2);
 	createTrackbar("Red Threshold", "Camera View", &redThreshold, 255, onTrackbarRed);
+
+	/*Trackers for HSV color detection*/
+	cvCreateTrackbar("LowH", "Control", &iLowH, 179); //Hue (0 - 179)
+	cvCreateTrackbar("HighH", "Control", &iHighH, 179);
+
+	cvCreateTrackbar("LowS", "Control", &iLowS, 255); //Saturation (0 - 255)
+	cvCreateTrackbar("HighS", "Control", &iHighS, 255);
+
+	cvCreateTrackbar("LowV", "Control", &iLowV, 255); //Value (0 - 255)
+	cvCreateTrackbar("HighV", "Control", &iHighV, 255);
+	/*HSV trackers end*/
 	// initialze queue with 5 values
 	for (int i = 0; i < 4; i++){
 		historyQueue.push_front("no output");
@@ -110,11 +128,11 @@ int main(int argc, char* argv[])
 
 	while (capture.isOpened())
 	{
-
+		
 		view.copyTo(previousFrame);// saves the previous frame
 		capture.read(view0);
 		view0.copyTo(view);
-
+		cvtColor(view, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
 		motionHistory = cv::Mat::zeros(view.rows, view.cols, CV_32FC1);//
 		mask = cv::Mat::zeros(view.rows, view.cols, CV_8UC1);
 		orientation = cv::Mat::zeros(view.rows, view.cols, CV_32FC1);
@@ -127,7 +145,7 @@ int main(int argc, char* argv[])
 			drawOutline(view0, outline);
 			differenceTime = starttime - time(&timer); // get time difference from start
 			timeStamp = (float)abs(differenceTime % 100);
-
+			inRange(imgHSV, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imgThresholded); //Threshold the image
 			sprintf_s(filename, "%s/frame_%04d.jpg", directory, frameNumber);
 			int percentAreaCoveredRed = (currentRedArea * 100) / largestRedArea;
 
@@ -196,6 +214,7 @@ int main(int argc, char* argv[])
 			imwrite(filename, view0); // uncomment this to save a series of frames of detected object
 			MOTION*/
 			imshow("view0", view0);
+			imshow("Thresholded Image", imgThresholded); //show the thresholded image
 			frameNumber++;
 		}
 
