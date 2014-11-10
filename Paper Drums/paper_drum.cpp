@@ -22,9 +22,11 @@ using namespace std;
 void computeObjectAreaAndCenter(vector<Point>& outline, double& area, Point& center);
 bool findLargestRedObject(Mat& view, Point& location, vector<Point>& outline, int redThreshold);
 bool findLargestBlueObject(Mat& view, Point& location, vector<Point>& outline, int blueThreshold);
+bool findLargestYellowObject(Mat& view, Point& location, vector<Point>& outline, int redThreshold);
 void drawOutline(Mat& image, vector<Point>& outline);
 void onTrackbarRed(int value, void* data);
 void onTrackbarBlue(int value, void* data);
+void onTrackbarYellow(int value, void* data);
 /*new end*/
 
 void convertToGrayScale(Mat& frame); // converts the image to grayscale (1 channel)
@@ -40,9 +42,14 @@ int redThreshold = 0;
 int largestRedArea = 1;
 int currentRedArea = 1;
 
-int blueThreshold = 0;
+int currentYellowArea = 1;
+int yellowThreshold = 1;
+int largestYellowArea = 1;
+
+int blueThreshold = 1;
 int largestBlueArea = 1;
 int currentBlueArea = 1;
+
 
 int iLowH = 0;
 int iHighH = 179;
@@ -91,8 +98,12 @@ int main(int argc, char* argv[])
 	/*NEW*/
 	Point red;
 	vector<Point> outlineRed;
+
 	Point blue;
 	vector<Point> outlineBlue;
+
+	Point yellow;
+	vector<Point> outlineYellow;
 	/*NEW*/
 
 	char directory[128] = { '\0' };
@@ -111,6 +122,7 @@ int main(int argc, char* argv[])
 	createTrackbar("Blur", "Camera View", &smoothSlider, smoothSliderMax, onTrackbar2);
 	createTrackbar("Red Threshold", "Camera View", &redThreshold, 255, onTrackbarRed);
 	createTrackbar("Blue Threshold", "Camera View", &blueThreshold, 255, onTrackbarBlue);
+	createTrackbar("yellow Threshold", "Camera View", &yellowThreshold, 255, onTrackbarYellow);
 
 	/*Trackers for HSV color detection*/
 	cvCreateTrackbar("LowH", "Control", &iLowH, 179); //Hue (0 - 179)
@@ -153,18 +165,33 @@ int main(int argc, char* argv[])
 
 			findLargestRedObject(view, red, outlineRed, redThreshold);
 			findLargestBlueObject(view, blue, outlineBlue, blueThreshold);
+			findLargestYellowObject(view, yellow, outlineYellow, yellowThreshold);
 			drawOutline(view0, outlineRed);
 			drawOutline(view0, outlineBlue);
+			drawOutline(view0, outlineYellow);
 			differenceTime = starttime - time(&timer); // get time difference from start
 			timeStamp = (float)abs(differenceTime % 100);
 			inRange(imgHSV, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imgThresholded); //Threshold the image
 			sprintf_s(filename, "%s/frame_%04d.jpg", directory, frameNumber);
 			int percentAreaCoveredRed = (currentRedArea * 100) / largestRedArea;
 
-			if (percentAreaCoveredRed >= 30 && percentAreaCoveredRed <= 60){
-				PlaySound("sound/snare_hit.wav", NULL, SND_ASYNC);
+			if (percentAreaCoveredRed >= 50 && percentAreaCoveredRed <= 91){
+				PlaySound("sound/snare_hit.wav", NULL, SND_FILENAME);
 				cout << "HIT!";
 			}
+
+			int percentAreaCoveredBlue = (currentBlueArea * 100) / largestBlueArea;
+			if (percentAreaCoveredBlue >= 50 && percentAreaCoveredBlue <= 93){
+				PlaySound("sound/hihat_hit.wav", NULL, SND_FILENAME);
+				cout << "HIT!";
+			}
+
+			int percentAreaCoveredYellow = (currentYellowArea * 100) / largestYellowArea;
+			if (percentAreaCoveredYellow >= 50 && percentAreaCoveredYellow <= 93){
+				PlaySound("sound/tom1_hit.wav", NULL, SND_FILENAME);
+				cout << "HIT!";
+			}
+
 			/*
 			computeDifferenceOfFrames(view, previousFrame, diffMatrix); // computes difference of previous and current frame
 			
@@ -247,6 +274,8 @@ int main(int argc, char* argv[])
 		}
 		if (key == 'd'){ // when threshold is good then press d i.e done
 			largestRedArea = currentRedArea;
+			largestBlueArea = currentBlueArea;
+			largestYellowArea = currentYellowArea;
 		}
 		if (key == 'q')
 		{
@@ -321,6 +350,13 @@ void onTrackbarBlue(int value, void* data)
 {
 
 	blueThreshold = value;
+
+}
+
+void onTrackbarYellow(int value, void* data)
+{
+
+	yellowThreshold = value;
 
 }
 
@@ -452,7 +488,7 @@ bool findLargestBlueObject(Mat& view, Point& location, vector<Point>& outline, i
 			largestArea = tempArea;
 			largestIndex = i;
 			largestCenter = tempCenter;
-			currentRedArea = largestArea;
+			currentBlueArea = largestArea;
 		}
 	}
 	location = largestCenter;
@@ -468,7 +504,79 @@ bool findLargestBlueObject(Mat& view, Point& location, vector<Point>& outline, i
 		//put a red circle around the red object
 		circle(displayBlue[0], largestCenter, std::min(double(view.cols) / 2, sqrt(largestArea)), Scalar(0, 0, 255), 1);
 	}
-	imshow("Just bluee", displayBlue[0]);
+	imshow("Just blue", displayBlue[0]);
+
+
+	if (largestIndex >= 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
+}
+
+bool findLargestYellowObject(Mat& view, Point& location, vector<Point>& outline, int redThreshold)
+{
+	//allocate some images to store intermediate results
+	vector<Mat> YCrCb;
+	YCrCb.push_back(Mat(view.rows, view.cols, CV_8UC3));
+	vector<Mat> justYellow;
+	justYellow.push_back(Mat(view.rows, view.cols, CV_8UC1));
+	vector<Mat> displayYellow;
+	displayYellow.push_back(Mat(view.rows, view.cols, CV_8UC3));
+
+	//Switch color spaces to YCrCb so we can detect red objects even if they are dark
+	cvtColor(view, YCrCb[0], CV_BGR2HSV);
+
+	//Pull out just the red channel
+	//int extractRed[6] = { 1, 0, 1, 1, 1, 2 };
+	//mixChannels(&(YCrCb[0]), 1, &(justRed[0]), 1, extractRed, 1);
+
+	// Threshold the red object (with the threshold from the slider)
+
+	//threshold(justRed[0], justRed[0], redThreshold, 255, CV_THRESH_BINARY);
+	inRange(view, Scalar(29, 141, 0), Scalar(134, 255, 255), justYellow[0]); //Threshold the image
+	vector<vector<Point>> objectContours;
+	vector<Vec4i> dummy;
+	//imshow("HSV REDDDD", justYellow[0]);
+
+	//Find all of the contiguous image regions
+	findContours(justYellow[0], objectContours, dummy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+
+	//find the largest object
+	int largestArea(-1), largestIndex(-1);
+	Point largestCenter;
+	for (int i = 0; i<objectContours.size(); i++)
+	{
+		Point tempCenter;
+		double tempArea;
+		computeObjectAreaAndCenter(objectContours[i], tempArea, tempCenter);
+
+		if (tempArea > largestArea)
+		{
+			largestArea = tempArea;
+			largestIndex = i;
+			largestCenter = tempCenter;
+			currentYellowArea = largestArea;
+		}
+	}
+	location = largestCenter;
+	if (largestIndex >= 0)
+	{
+		outline = objectContours[largestIndex];
+	}
+
+	//Construct an image for display that shows the red channel as gray
+	//mixChannels(&(YCrCb[0]), 1, &(displayRed[0]), 1, extractRed, 3);
+	if (largestIndex >= 0)
+	{
+		//put a red circle around the red object
+		circle(displayYellow[0], largestCenter, std::min(double(view.cols) / 2, sqrt(largestArea)), Scalar(0, 0, 255), 1);
+	}
+	imshow("Just yellow", displayYellow[0]);
 
 
 	if (largestIndex >= 0)
