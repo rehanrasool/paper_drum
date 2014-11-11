@@ -1,4 +1,4 @@
-﻿Build started 11/10/2014 8:09:16 PM.
+﻿Build started 11/10/2014 10:54:46 PM.
      1>Project "C:\workspaces\C++\paper_drum\Paper Drums\Paper Drums.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Visual Studio 2013\VC\bin\CL.exe /c /IC:\workspaces\opencv\build\include /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt paper_drum.cpp stdafx.cpp
@@ -15,9 +15,9 @@
      1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(563): warning C4018: '<' : signed/unsigned mismatch
      1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(571): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
      1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(588): warning C4244: 'argument' : conversion from 'const double' to 'int', possible loss of data
-     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(637): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(645): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
-     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(662): warning C4244: 'argument' : conversion from 'const double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(638): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(646): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(663): warning C4244: 'argument' : conversion from 'const double' to 'int', possible loss of data
          Generating Code...
          Skipping... (no relevant changes detected)
          stdafx.cpp

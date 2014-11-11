@@ -182,23 +182,23 @@ int main(int argc, char* argv[])
 			timeStamp = (float)abs(differenceTime % 100);
 			inRange(imgHSV, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imgThresholded); //Threshold the image
 			sprintf_s(filename, "%s/frame_%04d.jpg", directory, frameNumber);
-			int percentAreaCoveredRed = (currentRedArea * 100) / largestRedArea;
-
-			if (percentAreaCoveredRed >= 74 && percentAreaCoveredRed <= 79){
+			
+			int percentAreaCoveredRed = 100 -( (currentRedArea * 100) / largestRedArea);
+			if (percentAreaCoveredRed >= 5 && percentAreaCoveredRed <= 70){
 				PlaySound("sound/snare_hit.wav", NULL, SND_ASYNC);
-				cout << "HIT!";
+				cout << "covered area red! = " << percentAreaCoveredRed << endl;
 			}
 
-			int percentAreaCoveredBlue = (currentBlueArea * 100) / largestBlueArea;
-			if (percentAreaCoveredBlue >= 74 && percentAreaCoveredBlue <= 79){
+			int percentAreaCoveredBlue = 100 - ((currentBlueArea * 100) / largestBlueArea);
+			if (percentAreaCoveredBlue >= 5 && percentAreaCoveredBlue <= 70){
 				PlaySound("sound/hihat_hit.wav", NULL, SND_ASYNC);
-				cout << "HIT!";
+				cout << "covered area blue! = " << percentAreaCoveredBlue << endl;
 			}
 
-			int percentAreaCoveredYellow = (currentYellowArea * 100) / largestYellowArea;
-			if (percentAreaCoveredYellow >= 74 && percentAreaCoveredYellow <= 79){
+			int percentAreaCoveredYellow = 100 - ((currentYellowArea * 100) / largestYellowArea);
+			if (percentAreaCoveredYellow >= 5 && percentAreaCoveredYellow <= 70){
 				PlaySound("sound/tom1_hit.wav", NULL, SND_ASYNC);
-				cout << "HIT!";
+				cout << "covered area Yellow! = " << percentAreaCoveredYellow << endl;;
 			}
 
 			/*
@@ -547,7 +547,7 @@ bool findLargestYellowObject(Mat& view, Point& location, vector<Point>& outline,
 	// Threshold the red object (with the threshold from the slider)
 
 	
-	inRange(view, Scalar(34, 165, 0), Scalar(114, 255, 255), justYellow[0]); //Threshold the image
+	inRange(YCrCb[0], Scalar(22, 113, 112), Scalar(32, 209, 255), justYellow[0]); //Threshold the image
 	threshold(justYellow[0], justYellow[0], redThreshold, 255, CV_THRESH_BINARY);
 	imshow("YELLOOWWWW", justYellow[0]);
 	vector<vector<Point>> objectContours;
@@ -620,8 +620,9 @@ bool findLargestGreenObject(Mat& view, Point& location, vector<Point>& outline, 
 
 	// Threshold the red object (with the threshold from the slider)
 
+	inRange(YCrCb[0], Scalar(39, 4, 28), Scalar(98, 161, 251), justGreen[0]); //Threshold the image
 
-	inRange(view, Scalar(47, 82, 0), Scalar(111, 255, 103), justGreen[0]); //Threshold the image
+	//inRange(view, Scalar(47, 82, 0), Scalar(111, 255, 103), justGreen[0]); //Threshold the image
 	threshold(justGreen[0], justGreen[0], redThreshold, 255, CV_THRESH_BINARY);
 	imshow("GREEN", justGreen[0]);
 	vector<vector<Point>> objectContours;
