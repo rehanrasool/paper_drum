@@ -24,6 +24,7 @@ void redThread();
 void yellowThread();
 void greenThread();
 void blueThread();
+void purpleThread();
 
 Point green;
 vector<Point> outlineGreen;
@@ -77,7 +78,7 @@ int currentPurpleArea = 1;
 int largestPurpleArea = 1;
 
 
-Vector<Mat> justGreen;
+
 
 int iLowH = 0;
 int iHighH = 179;
@@ -91,6 +92,9 @@ int iHighV = 255;
 
 Point red;
 vector<Point> outlineRed;
+
+Point purple;
+vector<Point> outlinePurple;
 
 Mat view, view0, imgThresholded, imgHSV, mask, orientation, previousFrame;
 
@@ -208,14 +212,15 @@ int main(int argc, char* argv[])
 			thread t2(blueThread);
 			thread t3(greenThread);
 			thread t4(yellowThread);
+			thread t5(purpleThread);
 			//findLargestRedObject(view, red, outlineRed, redThreshold);
-			findLargestPurpleObject(view, purple, outlinePurple, purpleThreshold);
+			//findLargestPurpleObject(view, purple, outlinePurple, purpleThreshold);
 			//findLargestBlueObject(view, blue, outlineBlue, blueThreshold);
 			//findLargestYellowObject(view, yellow, outlineYellow, yellowThreshold);
 			//findLargestGreenObject(view, green, outlineGreen, greenThreshold);
 			//drawOutline(view0, outlineGreen,0,255,0);
 			//drawOutline(view0, outlineRed, 255,0,0);
-			drawOutline(view0, outlinePurple, 128, 0, 128);
+			//drawOutline(view0, outlinePurple, 255, 0, 128);
 			//drawOutline(view0, outlineBlue,0,0,255);
 			//drawOutline(view0, outlineYellow, 255,255,0);
 			differenceTime = starttime - time(&timer); // get time difference from start
@@ -313,6 +318,7 @@ int main(int argc, char* argv[])
 			t2.join();
 			t3.join();
 			t4.join();
+			t5.join();
 			
 			//imshow("GREEEEN", justGreen[0]);
 			//imshow("Thresholded Image", imgThresholded); //show the thresholded image
@@ -338,6 +344,7 @@ int main(int argc, char* argv[])
 			largestRedArea = currentRedArea;
 			largestBlueArea = currentBlueArea;
 			largestYellowArea = currentYellowArea;
+			largestPurpleArea = currentPurpleArea;
 		}
 		if (key == 'q')
 		{
@@ -351,6 +358,24 @@ int main(int argc, char* argv[])
 
 
 /*Threading*/
+
+void purpleThread() {
+	//while (true){
+	if (!view.empty() && !view0.empty()){
+		if (view.size > 0 && view0.size > 0){
+			findLargestPurpleObject(view, red, outlinePurple, redThreshold);
+			drawOutline(view0, outlinePurple, 255, 0, 0);
+			int percentAreaCoveredPurple = 100 - ((currentPurpleArea * 100) / largestPurpleArea);
+			if (percentAreaCoveredPurple >= 15 && percentAreaCoveredPurple <= 70){
+				PlaySound("sound/floortom_hit.wav", NULL, SND_ASYNC);
+				cout << "covered area red! = " << percentAreaCoveredPurple << endl;
+			}
+			//imshow("view0", view0);
+		}
+	}
+	//}
+
+}
 
 void redThread() {
 	//while (true){
@@ -736,7 +761,7 @@ bool findLargestGreenObject(Mat& view, Point& location, vector<Point>& outline, 
 	//allocate some images to store intermediate results
 	vector<Mat> YCrCb;
 	YCrCb.push_back(Mat(view.rows, view.cols, CV_8UC3));
-	
+	Vector<Mat> justGreen;
 	justGreen.push_back(Mat(view.rows, view.cols, CV_8UC1));
 	vector<Mat> displayGreen;
 	displayGreen.push_back(Mat(view.rows, view.cols, CV_8UC3));
@@ -826,7 +851,8 @@ bool findLargestPurpleObject(Mat& view, Point& location, vector<Point>& outline,
 	// Threshold the red object (with the threshold from the slider)
 
 	//inRange(YCrCb[0], Scalar(39, 4, 28), Scalar(98, 161, 251), justGreen[0]); //Threshold the image
-	inRange(YCrCb[0], Scalar(138, 83, 147), Scalar(179, 170, 147), justPurple[0]); //Threshold the image
+	inRange(YCrCb[0], Scalar(143, 69, 92), Scalar(179, 112, 255), justPurple[0]); //Threshold the image
+	//inRange(YCrCb[0], Scalar(138, 83, 147), Scalar(179, 170, 147), justPurple[0]); //Threshold the image
 	//inRange(view, Scalar(47, 82, 0), Scalar(111, 255, 103), justGreen[0]); //Threshold the image lib
 	//threshold(justGreen[0], justGreen[0], redThreshold, 255, CV_THRESH_BINARY);
 	imshow("PURPLE", justPurple[0]);
