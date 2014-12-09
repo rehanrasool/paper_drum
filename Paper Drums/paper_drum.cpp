@@ -2,6 +2,9 @@
 Author : Omar Waheed, Rehan Rasool
 */
 
+// sound library
+
+
 #include "stdafx.h"
 #include <iostream>
 #include <Windows.h>
@@ -13,18 +16,23 @@ Author : Omar Waheed, Rehan Rasool
 #include <time.h>
 #include <deque>
 
+
+
+
+#include "include/irrKlang.h"
+
+using namespace std;
+using namespace irrklang;
+
+#pragma comment(lib, "irrKlang.lib")
+
+
+
 #include <thread>
 
 using namespace cv;
 using namespace std;
 
-
-
-void redThread();
-void yellowThread();
-void greenThread();
-void blueThread();
-void purpleThread();
 /*0 is red, 1 is green, 2 is blue, 3 is purple, 4 is yellow, 5 is white*/
 int hHigh[5];
 int sHigh[5];
@@ -34,6 +42,18 @@ int hLow[5];
 int sLow[5];
 int vLow[5];
 
+int hHigh2[5];
+int sHigh2[5];
+int vHigh2[5];
+
+int hLow2[5];
+int sLow2[5];
+int vLow2[5];
+
+// offsets
+int redPlayedOffset = 0;
+int bluePlayedOffset = 0;
+int greenPlayedOffset = 0;
 
 Point green;
 vector<Point> outlineGreen;
@@ -43,28 +63,41 @@ vector<Point> outlineBlue;
 
 Point yellow;
 vector<Point> outlineYellow;
+
+Point green2;
+vector<Point> outlineGreen2;
+
+Point blue2;
+vector<Point> outlineBlue2;
+
+Point yellow2;
+vector<Point> outlineYellow2;
+
 /*new*/
+cv::Mat makeCanvas(std::vector<cv::Mat>& vecMat, int windowHeight, int nRows);
 void setHSV(int colorNumber);
 void computeObjectAreaAndCenter(vector<Point>& outline, double& area, Point& center);
 bool findLargestPurpleObject(Mat& view, Point& location, vector<Point>& outline, int redThreshold, int colorNum, bool show);
-bool findLargestRedObject(Mat& view, Point& location, vector<Point>& outline, int redThreshold, int colorNum,bool imshow);
+bool findLargestRedObject(Mat& view, Point& location, vector<Point>& outline, int redThreshold, int colorNum, bool imshow);
+bool findLargestRedObject2(Mat& view, Point& location, vector<Point>& outline, int redThreshold, int colorNum, bool imshow);
 bool findLargestBlueObject(Mat& view, Point& location, vector<Point>& outline, int blueThreshold, int colorNum,bool imshow);
+bool findLargestBlueObject2(Mat& view, Point& location, vector<Point>& outline, int blueThreshold, int colorNum, bool imshow);
 bool findLargestYellowObject(Mat& view, Point& location, vector<Point>& outline, int redThreshold, int colorNum,bool imshow);
 bool findLargestGreenObject(Mat& view, Point& location, vector<Point>& outline, int redThreshold, int colorNum,bool imshow);
+bool findLargestGreenObject2(Mat& view, Point& location, vector<Point>& outline, int redThreshold, int colorNum, bool imshow);
 bool findLargestWhiteObject(Mat& view, Point& location, vector<Point>& outline, int redThreshold, int colorNum, bool imshow);
 void drawOutline(Mat& image, vector<Point>& outline, int red, int green, int blue);
 void setThresh(int colorNumber);
 void onTrackbarRed(int value, void* data);
+void onTrackbarRed2(int value, void* data);
 void onTrackbarBlue(int value, void* data);
+void onTrackbarBlue2(int value, void* data);
 void onTrackbarYellow(int value, void* data);
 void onTrackbarSelect(int colorNum, void* data);
 /*new end*/
 
-void convertToGrayScale(Mat& frame); // converts the image to grayscale (1 channel)
-void computeDifferenceOfFrames(Mat& currentFrame, Mat& previousFrame, Mat& differenceMatrix); // computes difference of current and previous frames
 void onTrackbar(int value, void* data);
 void onTrackbar2(int value, void* data);
-void smoothImage(Mat& image, double sigma);
 Mat diffMatrix;
 int thresholdOfDiffMatrix = 30;
 int blurQuantity = 1;
@@ -75,32 +108,56 @@ int colorNumber = 0; // which color is selected?
 int redThreshold = 0;
 int largestRedArea = 1;
 int currentRedArea = 1;
+int redThreshold2 = 0;
+int largestRedArea2 = 1;
+int currentRedArea2 = 1;
 
 int currentYellowArea = 1;
 int yellowThreshold = 1;
 int largestYellowArea = 1;
+int currentYellowArea2 = 1;
+int yellowThreshold2 = 1;
+int largestYellowArea2 = 1;
 
 int currentWhitewArea = 1;
 int WhiteThreshold = 1;
 int largestWhiteArea = 1;
+int currentWhitewArea2 = 1;
+int WhiteThreshold2 = 1;
+int largestWhiteArea2 = 1;
 
 int blueThreshold = 1;
 int largestBlueArea = 1;
 int currentBlueArea = 1;
+int blueThreshold2 = 1;
+int largestBlueArea2 = 1;
+int currentBlueArea2 = 1;
 
 int greenThreshold;
 int currentGreenArea = 1;
 int largestGreenArea = 1;
+int greenThreshold2;
+int currentGreenArea2 = 1;
+int largestGreenArea2 = 1;
 
 int purpleThreshold;
 int currentPurpleArea = 1;
 int largestPurpleArea = 1;
+int purpleThreshold2;
+int currentPurpleArea2 = 1;
+int largestPurpleArea2 = 1;
 
 Mat justRedG;
 Mat justGreenG;
 Mat justPurplrG;
 Mat justYellowG;
 Mat justBlueG;
+
+Mat justRedG2;
+Mat justGreenG2;
+Mat justPurplrG2;
+Mat justYellowG2;
+Mat justBlueG2;
 
 
 int iLowH = 0;
@@ -111,6 +168,15 @@ int iHighS = 255;
 
 int iLowV = 0;
 int iHighV = 255;
+
+int iLowH2 = 0;
+int iHighH2 = 179;
+
+int iLowS2 = 0;
+int iHighS2 = 255;
+
+int iLowV2 = 0;
+int iHighV2 = 255;
 /*New*/
 
 Point red;
@@ -122,25 +188,44 @@ vector<Point> outlineWhite;
 Point purple;
 vector<Point> outlinePurple;
 
+Point red2;
+vector<Point> outlineRed2;
+
+Point white2;
+vector<Point> outlineWhite2;
+
+Point purple2;
+vector<Point> outlinePurple2;
+
+vector<Mat> vector_mat(2);
+Mat red_combined;
+vector<Mat> views_vector(4);
 
 
 
-Mat view, view0, imgThresholded, imgHSV, mask, orientation, previousFrame;
+Mat view, view2, view0, view1, imgThresholded, imgHSV, mask, orientation, previousFrame, previousFrame2;
 
 int main(int argc, char* argv[])
 {
-	VideoCapture capture;
+
+	ISoundEngine* se = createIrrKlangDevice();
+
+	VideoCapture capture, capture2;
 	capture.open(0);
+	capture2.open(1);
 	if (!capture.isOpened())
 	{
 		int error = -1;
 		return 1;
 	}
+	if (!capture2.isOpened())
+	{
+		int error = -1;
+		return 1;
+	}
 
-	namedWindow("Camera View", 1);
-	namedWindow("Control", CV_WINDOW_FREERATIO); //create a window called "Control" -> controls for HSV values
-
-	// http://docs.opencv.org/doc/tutorials/objdetect/cascade_classifier/cascade_classifier.html
+	namedWindow("Views", CV_WINDOW_AUTOSIZE);
+	resizeWindow("Views", 300, 600); // adjust trackbar width
 
 	int smoothSlider;
 	int smoothSliderMax = 100;
@@ -176,52 +261,72 @@ int main(int argc, char* argv[])
 	starttime = time(&timer); // time starts here
 
 	//create a slider in the window
-	createTrackbar("threshold", "Camera View", &smoothSlider, smoothSliderMax, onTrackbar);
-	createTrackbar("Blur", "Camera View", &smoothSlider, smoothSliderMax, onTrackbar2);
-	createTrackbar("Red Threshold", "Camera View", &redThreshold, 255, onTrackbarRed);
-	createTrackbar("Blue Threshold", "Camera View", &blueThreshold, 255, onTrackbarBlue);
-	createTrackbar("yellow Threshold", "Camera View", &yellowThreshold, 255, onTrackbarYellow);
-	createTrackbar("Color", "Camera View", &colorNumber, 6, onTrackbarSelect);
+	//createTrackbar("threshold", "Camera View", &smoothSlider, smoothSliderMax, onTrackbar);
+	//createTrackbar("Blur", "Camera View", &smoothSlider, smoothSliderMax, onTrackbar2);
+	createTrackbar("Color", "Views", &colorNumber, 6, onTrackbarSelect);
+	createTrackbar("Red", "Views", &redThreshold, 255, onTrackbarRed);
+	createTrackbar("Red2", "Views", &redThreshold2, 255, onTrackbarRed2);
+	createTrackbar("Blue", "Views", &blueThreshold, 255, onTrackbarBlue);
+	createTrackbar("Blue2", "Views", &blueThreshold2, 255, onTrackbarBlue2);
+	
+
+	//createTrackbar("yellow Threshold", "Views", &yellowThreshold, 255, onTrackbarYellow);
+	
+
+	//create a slider in the window2
+	//createTrackbar("threshold", "Camera2 View", &smoothSlider, smoothSliderMax, onTrackbar);
+	//createTrackbar("Blur", "Camera2 View", &smoothSlider, smoothSliderMax, onTrackbar2);
+	
+	
+	//createTrackbar("yellow Threshold2", "Views", &yellowThreshold2, 255, onTrackbarYellow);
+	//createTrackbar("Color", "Camera2 View", &colorNumber, 6, onTrackbarSelect);
 
 	/*Trackers for HSV color detection*/
-	cvCreateTrackbar("LowH", "Control", &iLowH, 179); //Hue (0 - 179)
-	cvCreateTrackbar("HighH", "Control", &iHighH, 179);
+	
+	cvCreateTrackbar("LowH", "Views", &iLowH, 179); //Hue (0 - 179)
+	cvCreateTrackbar("HighH", "Views", &iHighH, 179);
 
-	cvCreateTrackbar("LowS", "Control", &iLowS, 255); //Saturation (0 - 255)
-	cvCreateTrackbar("HighS", "Control", &iHighS, 255);
+	cvCreateTrackbar("LowS", "Views", &iLowS, 255); //Saturation (0 - 255)
+	cvCreateTrackbar("HighS", "Views", &iHighS, 255);
 
-	cvCreateTrackbar("LowV", "Control", &iLowV, 255); //Value (0 - 255)
-	cvCreateTrackbar("HighV", "Control", &iHighV, 255);
-	/*HSV trackers end*/
-	// initialze queue with 5 values
-	for (int i = 0; i < 4; i++){
-		historyQueue.push_front("no output");
-	}
+	cvCreateTrackbar("LowV", "Views", &iLowV, 255); //Value (0 - 255)
+	cvCreateTrackbar("HighV", "Views", &iHighV, 255);
+	
+	cvCreateTrackbar("LowH2", "Views", &iLowH2, 179); //Hue (0 - 179)
+	cvCreateTrackbar("HighH2", "Views", &iHighH2, 179);
 
+	cvCreateTrackbar("LowS2", "Views", &iLowS2, 255); //Saturation (0 - 255)
+	cvCreateTrackbar("HighS2", "Views", &iHighS2, 255);
 
-	//all of the stuff gets computed in the onTrackbar function so that things get recomputed 
-	//when you apply different levels of smoothing
-	//Here, we call it manually for initialization
-	onTrackbar(30, NULL);
-	onTrackbar2(1, NULL);
-	onTrackbarRed(0, NULL);
-	onTrackbarBlue(0, NULL);
+	cvCreateTrackbar("LowV2", "Views", &iLowV2, 255); //Value (0 - 255)
+	cvCreateTrackbar("HighV2", "Views", &iHighV2, 255);
 
 	bool redStarted = false;
 
 	int count = 0;
+
+	
 			
 	while (capture.isOpened())
 	{
 		
+		//grab and retrieve each frames of the video sequentially 
+		//cv::Mat3b view0;
+		capture >> view0;
+		//cv::Mat3b frame1;
+		capture2 >> view1;
+
+		view2.copyTo(previousFrame2);// saves the previous frame
+		capture2.read(view1);
+		view1.copyTo(view2);
+		cvtColor(view2, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
+
 		view.copyTo(previousFrame);// saves the previous frame
 		capture.read(view0);
 		view0.copyTo(view);
 		cvtColor(view, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
-		//motionHistory = cv::Mat::zeros(view.rows, view.cols, CV_32FC1);//
-		//mask = cv::Mat::zeros(view.rows, view.cols, CV_8UC1);
-		//orientation = cv::Mat::zeros(view.rows, view.cols, CV_32FC1);
-		imshow("Camera View", view);
+
+
 		
 		if (bRecording)
 		{
@@ -232,34 +337,27 @@ int main(int argc, char* argv[])
 					  findLargestRedObject(view, red, outlineRed, redThreshold,0,true);
 					  drawOutline(view0, outlineRed, 255, 0, 0);
 
-					  /*thread t1(redThread);
-					  t1.join();
-					  */
-			
+					  findLargestRedObject2(view2, red2, outlineRed2, redThreshold2, 0, true);
+					  drawOutline(view1, outlineRed2, 255, 0, 0);
+
 				break;
 			case 1:
 			
 					  setHSV(colorNumber);
 					  findLargestGreenObject(view, green, outlineGreen, greenThreshold,1,true);
 					  drawOutline(view0, outlineGreen, 0, 255, 0);
-					  /*
-					  thread t3(greenThread);
 
-					  t3.join();
-					  */
-					  //imshow("green", justGreenG);
-			
+					  findLargestGreenObject2(view2, green2, outlineGreen2, greenThreshold2, 1, true);
+					  drawOutline(view1, outlineGreen2, 0, 255, 0);
 
 				break;
 			case 2:
 			
 					  findLargestBlueObject(view, blue, outlineBlue, blueThreshold,2,true);
 					  drawOutline(view0, outlineBlue, 0, 0, 255);
-					  /*
-					  thread t3(blueThread);
-					  t3.join();
-					  */
-			
+
+					  findLargestBlueObject2(view2, blue2, outlineBlue2, blueThreshold2, 2, true);
+					  drawOutline(view1, outlineBlue2, 0, 0, 255);
 
 				break;
 			case 3:
@@ -268,24 +366,18 @@ int main(int argc, char* argv[])
 					  findLargestPurpleObject(view, purple, outlinePurple, purpleThreshold,3,true);
 					  drawOutline(view0, outlinePurple, 255, 0, 128);
 
+					  findLargestPurpleObject(view2, purple2, outlinePurple2, purpleThreshold2, 3, true);
+					  drawOutline(view1, outlinePurple2, 255, 0, 128);
 
-					  /*
-					  thread t3(purpleThread);
-					  t3.join();
-					  */
-					//  imshow("purple", justPurplrG);
-			
 				break;
 			case 4:
 			
 					  setHSV(colorNumber);
 					  findLargestYellowObject(view, yellow, outlineYellow, yellowThreshold,4,true);
 					  drawOutline(view0, outlineYellow, 255, 255, 0);
-					 /* thread t3(yellowThread);
-					  imshow("yellow", justYellowG);
-					  t3.join();
-					  */
-					 // imshow("yellow", justYellowG);
+
+					  findLargestYellowObject(view2, yellow2, outlineYellow2, yellowThreshold2, 4, true);
+					  drawOutline(view1, outlineYellow2, 255, 255, 0);
 			
 				break;
 			case 5:
@@ -304,153 +396,96 @@ int main(int argc, char* argv[])
 					findLargestBlueObject(view, blue, outlineBlue, blueThreshold, 2, false);
 					findLargestYellowObject(view, yellow, outlineYellow, yellowThreshold, 4, false);
 					findLargestGreenObject(view, green, outlineGreen, greenThreshold, 1, false);
+
+					findLargestRedObject2(view2, red2, outlineRed2, redThreshold2, 0, false);
+					findLargestPurpleObject(view2, purple2, outlinePurple2, purpleThreshold2, 3, false);
+					findLargestBlueObject2(view2, blue2, outlineBlue2, blueThreshold2, 2, false);
+					findLargestYellowObject(view2, yellow2, outlineYellow2, yellowThreshold2, 4, false);
+					findLargestGreenObject(view2, green2, outlineGreen2, greenThreshold2, 1, false);
 				}
+
 				int percentAreaCoveredRed = 100 - ((currentRedArea * 100) / largestRedArea);
-				if (percentAreaCoveredRed >= 15 && percentAreaCoveredRed <= 70){
-					PlaySound("sound/snare_hit.wav", NULL, SND_ASYNC);
-					//cout << "covered area red! = " << percentAreaCoveredRed << endl;
+				int percentAreaCoveredRed2 = 100 - ((currentRedArea2 * 100) / largestRedArea2);
+				
+				//cout << "RED OFFSET: " << redPlayedOffset << endl;
+				//cout << "BLUE OFFSET: " << bluePlayedOffset << endl;
+				//cout << "covered area red! = " << percentAreaCoveredRed << endl;
+				//cout << "covered area red2! = " << percentAreaCoveredRed2 << endl;
+
+				string soundFile = "sound/snare_hit.wav";
+				string soundFile2 = "sound/hihat_hit.wav";
+				string soundFile3 = "sound/hihat_hit.wav";
+
+
+
+				if (percentAreaCoveredRed >= 15 && percentAreaCoveredRed <= 70 && percentAreaCoveredRed2 >= 5 && percentAreaCoveredRed2 <= 70 && redPlayedOffset == 0){
+					//PlaySound("sound/snare_hit.wav", NULL, SND_ASYNC);
+					se->play2D(soundFile.c_str());
+					redPlayedOffset = 2;
+					
+					
 				}
+				else {
+					if (redPlayedOffset < 0) {
+						redPlayedOffset = 0;
+					}
+					else {
+						redPlayedOffset = redPlayedOffset - 1;
+					}
+				}
+
 				int percentAreaCoveredBlue = 100 - ((currentBlueArea * 100) / largestBlueArea);
-				if (percentAreaCoveredBlue >= 15 && percentAreaCoveredBlue <= 70){
-					PlaySound("sound/hihat_hit.wav", NULL, SND_ASYNC);
+				int percentAreaCoveredBlue2 = 100 - ((currentBlueArea2 * 100) / largestBlueArea2);
+				if (percentAreaCoveredBlue >= 15 && percentAreaCoveredBlue <= 70 && percentAreaCoveredBlue2 >= 5 && percentAreaCoveredBlue2 <= 70 && bluePlayedOffset == 0){
+					//PlaySound("sound/hihat_hit.wav", NULL, SND_ASYNC);
+					se->play2D(soundFile2.c_str());
+					bluePlayedOffset = 3;
 				}
+				else {
+					if (bluePlayedOffset < 0) {
+						bluePlayedOffset = 2;
+					}
+					else {
+						bluePlayedOffset = bluePlayedOffset - 1;
+					}
+				}
+
+				int percentAreaCoveredGreen = 100 - ((currentGreenArea * 100) / largestGreenArea);
+				int percentAreaCoveredGreen2 = 100 - ((currentGreenArea2 * 100) / largestGreenArea2);
+
+				cout << "covered area green! = " << percentAreaCoveredGreen << endl;
+				cout << "covered area green2! = " << percentAreaCoveredGreen2 << endl;
+				if (percentAreaCoveredGreen >= 15 && percentAreaCoveredGreen <= 70 && percentAreaCoveredGreen2 >= 5 && percentAreaCoveredGreen2 <= 70 && greenPlayedOffset == 0){
+					//PlaySound("sound/hihat_hit.wav", NULL, SND_ASYNC);
+					se->play2D(soundFile2.c_str());
+					greenPlayedOffset = 3;
+				}
+				else {
+					if (greenPlayedOffset < 0) {
+						greenPlayedOffset = 2;
+					}
+					else {
+						greenPlayedOffset = greenPlayedOffset - 1;
+					}
+				}
+
 				count++;
-				//drawOutline(view0, outlineGreen,0,255,0);
-				//drawOutline(view0, outlineRed, 255,0,0);
-			//	drawOutline(view0, outlinePurple, 255, 0, 128);
-			//	drawOutline(view0, outlineBlue,0,0,255);
-				//drawOutline(view0, outlineYellow, 255,255,0);
-				
-				
-				/*thread t1(redThread);
-				thread t2(blueThread);
-				thread t3(greenThread);
-				thread t4(yellowThread);
-				thread t5(purpleThread);
-				t1.join();
-				t2.join();
-				t3.join();
-				t4.join();
-				t5.join();
-				*/
+
+				drawOutline(view0, outlineRed, 255,0,0);
+				drawOutline(view1, outlineRed2, 255, 0, 0);
+
 				break;
 			}
-			//thread t1(redThread);
-			//thread t2(blueThread);
-			//thread t3(greenThread);
-			//thread t4(yellowThread);
-			//thread t5(purpleThread);
-			//findLargestRedObject(view, red, outlineRed, redThreshold);
-			//findLargestPurpleObject(view, purple, outlinePurple, purpleThreshold);
-			//findLargestBlueObject(view, blue, outlineBlue, blueThreshold);
-			//findLargestYellowObject(view, yellow, outlineYellow, yellowThreshold);
-			//findLargestWhiteObject(view, white, outlineWhite, yellowThreshold);
-			//findLargestGreenObject(view, green, outlineGreen, greenThreshold);
-			//drawOutline(view0, outlineGreen,0,255,0);
-			//drawOutline(view0, outlineRed, 255,0,0);
-			//drawOutline(view0, outlinePurple, 255, 0, 128);
-			//drawOutline(view0, outlineBlue,0,0,255);
-			//drawOutline(view0, outlineYellow, 255,255,0);
-		//	drawOutline(view0, outlineWhite, 255, 255, 255);
-			differenceTime = starttime - time(&timer); // get time difference from start
-			timeStamp = (float)abs(differenceTime % 100);
-			//inRange(imgHSV, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imgThresholded); //Threshold the image
-			sprintf_s(filename, "%s/frame_%04d.jpg", directory, frameNumber);
+
 			
-			/*
-			int percentAreaCoveredRed = 100 -( (currentRedArea * 100) / largestRedArea);
-			if (percentAreaCoveredRed >= 5 && percentAreaCoveredRed <= 70){
-				PlaySound("sound/snare_hit.wav", NULL, SND_ASYNC);
-				cout << "covered area red! = " << percentAreaCoveredRed << endl;
-			}
-			*/
+			views_vector[0] = view0;
+			cvtColor(vector_mat[0], views_vector[1], CV_GRAY2RGB);
+			views_vector[2] = view1;
+			cvtColor(vector_mat[1], views_vector[3], CV_GRAY2RGB);
 
-			/*
-			int percentAreaCoveredBlue = 100 - ((currentBlueArea * 100) / largestBlueArea);
-			if (percentAreaCoveredBlue >= 5 && percentAreaCoveredBlue <= 70){
-				PlaySound("sound/hihat_hit.wav", NULL, SND_ASYNC);
-				cout << "covered area blue! = " << percentAreaCoveredBlue << endl;
-			}
-			*/
+			imshow("Views", makeCanvas(views_vector, 280, 1));
+			//imshow("view1", view1);
 
-			/*
-			int percentAreaCoveredYellow = 100 - ((currentYellowArea * 100) / largestYellowArea);
-			if (percentAreaCoveredYellow >= 5 && percentAreaCoveredYellow <= 70){
-				PlaySound("sound/tom1_hit.wav", NULL, SND_ASYNC);
-				cout << "covered area Yellow! = " << percentAreaCoveredYellow << endl;;
-			}
-			*/
-
-			/*
-			computeDifferenceOfFrames(view, previousFrame, diffMatrix); // computes difference of previous and current frame
-			
-			threshold(diffMatrix, diffMatrix, thresholdOfDiffMatrix, 40, CV_THRESH_BINARY); // threhold to remove noise
-			smoothImage(diffMatrix, blurQuantity);
-			updateMotionHistory(diffMatrix, motionHistory, (timeStamp), MHI_DURATION); // update motion history
-
-			calcMotionGradient(motionHistory, mask, orientation, 5, 12500.0, 3); // calculate motion gradient
-
-			segmentMotion(motionHistory, segMask, boundingRects, timeStamp, MHI_DURATION);
-
-			// calculate angle of motion using the history matrix
-			double angle;
-			angle = calcGlobalOrientation(orientation, mask, motionHistory, timeStamp, MHI_DURATION);
-
-			//cout << "angle = " << angle << "\n";
-
-			// categorize angles into motion categories
-			if ((angle <= 100 && angle >= 80) || (angle <= 280 && angle >= 260)){
-			historyQueue.pop_back();
-			historyQueue.push_front("Horizontal motion");
-			}
-			else if ((angle <= 10 && angle >= 3) || (angle <= 360 && angle >= 350)){
-			historyQueue.pop_back();
-			historyQueue.push_front("Vertical motion");
-			}
-
-			// only accept a certain motion if 5 consecutive motions are the same (this is to avoid small categorizations from natural shaking etc.)
-			for (int i = 0; i < historyQueue.size(); i++){
-			if (historyQueue[i] != "Horizontal motion"){
-			horizontalMotion = false;
-			}
-			if (historyQueue[i] != "Vertical motion"){
-			verticalMotion = false;
-			}
-			}
-
-			// print the appropriate case when true
-			if (horizontalMotion){
-			cout << "Horizontal motion" << endl;
-			}
-			else if (verticalMotion){
-			cout << "Vertical motion" << endl;
-			}
-
-			// reset values to default for next frame
-			horizontalMotion = true;
-			verticalMotion = true;
-
-			for (int i = 0; i< boundingRects.size(); i++) // this will put rectangles around objects that moved.
-			{
-			Scalar color = Scalar(255, 0, 255);
-			rectangle(view0, boundingRects[i].tl(), boundingRects[i].br(), color, 3, 8, 0);
-			}
-
-			imshow("MHI pic", motionHistory);
-			imshow("difference pic", diffMatrix);
-			imshow("view0", view0);
-			imwrite(filename, view0); // uncomment this to save a series of frames of detected object
-			MOTION*/
-			
-			imshow("view0", view0);
-			//t1.join();
-			//t2.join();
-			//t3.join();
-			//t4.join();
-			//t5.join();
-			
-			//imshow("GREEEEN", justGreen[0]);
-			//imshow("Thresholded Image", imgThresholded); //show the thresholded image
 			frameNumber++;
 		}
 
@@ -459,8 +494,6 @@ int main(int argc, char* argv[])
 		{
 
 			sprintf_s(filename, "%s/frame_%04d.jpg", directory, frameNumber);
-			convertToGrayScale(view);
-			computeDifferenceOfFrames(view, previousFrame, diffMatrix);
 
 			imwrite(filename, diffMatrix);
 			frameNumber++;
@@ -482,63 +515,19 @@ int main(int argc, char* argv[])
 }
 
 void setHSV(int colorNumber){
-	switch (colorNumber)
-	{
-	case 0:
-		hHigh[colorNumber] = iHighH;
-		sHigh[colorNumber] = iHighS;
-		vHigh[colorNumber] = iHighV;
-		hLow[colorNumber] = iLowH;
-		sLow[colorNumber] = iLowS;
-		vLow[colorNumber] = iLowV;
-		break;
-	case 1:
-		hHigh[colorNumber] = iHighH;
-		sHigh[colorNumber] = iHighS;
-		vHigh[colorNumber] = iHighV;
-		hLow[colorNumber] = iLowH;
-		sLow[colorNumber] = iLowS;
-		vLow[colorNumber] = iLowV;
-		break;
+	hHigh[colorNumber] = iHighH;
+	sHigh[colorNumber] = iHighS;
+	vHigh[colorNumber] = iHighV;
+	hLow[colorNumber] = iLowH;
+	sLow[colorNumber] = iLowS;
+	vLow[colorNumber] = iLowV;
 
-	case 2:
-		hHigh[colorNumber] = iHighH;
-		sHigh[colorNumber] = iHighS;
-		vHigh[colorNumber] = iHighV;
-		hLow[colorNumber] = iLowH;
-		sLow[colorNumber] = iLowS;
-		vLow[colorNumber] = iLowV;
-		break;
-
-	case 3:
-		hHigh[colorNumber] = iHighH;
-		sHigh[colorNumber] = iHighS;
-		vHigh[colorNumber] = iHighV;
-		hLow[colorNumber] = iLowH;
-		sLow[colorNumber] = iLowS;
-		vLow[colorNumber] = iLowV;
-		break;
-	case 4:
-		hHigh[colorNumber] = iHighH;
-		sHigh[colorNumber] = iHighS;
-		vHigh[colorNumber] = iHighV;
-		hLow[colorNumber] = iLowH;
-		sLow[colorNumber] = iLowS;
-		vLow[colorNumber] = iLowV;
-		break;
-
-	case 5:
-		hHigh[colorNumber] = iHighH;
-		sHigh[colorNumber] = iHighS;
-		vHigh[colorNumber] = iHighV;
-		hLow[colorNumber] = iLowH;
-		sLow[colorNumber] = iLowS;
-		vLow[colorNumber] = iLowV;
-		break;
-
-	default:
-		break;
-	}
+	hHigh2[colorNumber] = iHighH2;
+	sHigh2[colorNumber] = iHighS2;
+	vHigh2[colorNumber] = iHighV2;
+	hLow2[colorNumber] = iLowH2;
+	sLow2[colorNumber] = iLowS2;
+	vLow2[colorNumber] = iLowV2;
 }
 
 void setThresh(int colorNumber){
@@ -546,19 +535,24 @@ void setThresh(int colorNumber){
 	
 	case 0 :
 		largestRedArea = currentRedArea;
+		largestRedArea2 = currentRedArea2;
 		cout << "red set";
 		break;
 	case 1:
 		largestGreenArea = currentGreenArea;
+		largestGreenArea2 = currentGreenArea2;
 		break;
 	case 2: 
 		largestBlueArea = currentBlueArea;
+		largestBlueArea2 = currentBlueArea2;
 		break;
 	case 3:
 		largestPurpleArea = currentPurpleArea;
+		largestPurpleArea2 = currentPurpleArea2;
 		break;
 	case 4:
 		largestYellowArea = currentYellowArea;
+		largestYellowArea2 = currentYellowArea2;
 	case 5 :
 		//largestWhiteArea = currentWhiteArea;
 		break;
@@ -569,139 +563,6 @@ void setThresh(int colorNumber){
 	
 }
 
-
-/*Threading*/
-
-void purpleThread() {
-	//while (true){
-	if (!view.empty() && !view0.empty()){
-		if (view.size > 0 && view0.size > 0){
-			findLargestPurpleObject(view, red, outlinePurple, redThreshold,3,false);
-			drawOutline(view0, outlinePurple, 255, 0, 0);
-			Sleep(10);
-			int percentAreaCoveredPurple = 100 - ((currentPurpleArea * 100) / largestPurpleArea);
-			if (percentAreaCoveredPurple >= 15 && percentAreaCoveredPurple <= 70){
-				PlaySound("sound/floortom_hit.wav", NULL, SND_ASYNC);
-				cout << "covered area red! = " << percentAreaCoveredPurple << endl;
-			}
-			//imshow("view0", view0);
-		}
-	}
-	//}
-
-}
-
-void redThread() {
-	//while (true){
-		if (!view.empty() && !view0.empty()){
-			if (view.size > 0 && view0.size > 0){
-				findLargestRedObject(view, red, outlineRed, redThreshold, 0,false);
-				drawOutline(view0, outlineRed, 255, 0, 0);
-				int percentAreaCoveredRed = 100 - ((currentRedArea * 100) / largestRedArea);
-				if (percentAreaCoveredRed >= 15 && percentAreaCoveredRed <= 70){
-					PlaySound("sound/snare_hit.wav", NULL, SND_ASYNC);
-					cout << "covered area red! = " << percentAreaCoveredRed << endl;
-				}
-				//imshow("view0", view0);
-			}
-		}
-	//}
-
-}
-
-void blueThread() {
-	//while (true){
-		if (!view.empty() && !view0.empty()){
-			if (view.size > 0 && view0.size > 0){
-				findLargestBlueObject(view, blue, outlineBlue, blueThreshold, 2,false);
-				drawOutline(view0, outlineBlue, 0, 0, 255);
-				Sleep(10);
-				int percentAreaCoveredBlue = 100 - ((currentBlueArea * 100) / largestBlueArea);
-				if (percentAreaCoveredBlue >= 15 && percentAreaCoveredBlue <= 70){
-					PlaySound("sound/hihat_hit.wav", NULL, SND_ASYNC);
-					cout << "covered area blue! = " << percentAreaCoveredBlue << endl;
-				}
-				//imshow("view0", view0);
-			}
-		}
-	//}
-
-}
-
-void greenThread() {
-	//while (true){
-		if (!view.empty() && !view0.empty()){
-			if (view.size > 0 && view0.size > 0){
-				findLargestGreenObject(view, green, outlineGreen, greenThreshold,1,false);
-				drawOutline(view0, outlineGreen, 0, 255, 0);
-				Sleep(10);
-				//imshow("view0", view0);
-			}
-		}
-		
-	//}
-
-}
-
-void yellowThread() {
-	//while (true){
-		if (!view.empty() && !view0.empty()){
-			if (view.size > 0 && view0.size > 0){
-				findLargestYellowObject(view, yellow, outlineYellow, yellowThreshold,4,false);
-				drawOutline(view0, outlineYellow, 255, 255, 0);
-				Sleep(10);
-				int percentAreaCoveredYellow = 100 - ((currentYellowArea * 100) / largestYellowArea);
-				if (percentAreaCoveredYellow >= 15 && percentAreaCoveredYellow <= 70){
-					PlaySound("sound/tom1_hit.wav", NULL, SND_ASYNC);
-					cout << "covered area Yellow! = " << percentAreaCoveredYellow << endl;;
-				}
-				//imshow("view0", view0);
-			}
-		}
-		//}
-	}
-
-
-/**/
-
-
-// convert a frame to grayscale
-void convertToGrayScale(Mat& frame){
-	Mat tempGray;
-	cvtColor(frame, tempGray, CV_BGR2GRAY);
-	tempGray.copyTo(frame);
-}
-
-// compute difference between consecutive frames to detect motion
-void computeDifferenceOfFrames(Mat& currentFrame, Mat& previousFrame, Mat& differenceMatrix){
-	Mat prevFrameTemp;
-	Mat tempcurrentFrame;
-	currentFrame.copyTo(tempcurrentFrame);
-	convertToGrayScale(tempcurrentFrame);
-	previousFrame.copyTo(prevFrameTemp);
-	convertToGrayScale(prevFrameTemp);
-
-
-
-	currentFrame.copyTo(differenceMatrix);
-	absdiff(tempcurrentFrame, prevFrameTemp, differenceMatrix);
-
-
-
-
-}
-
-void smoothImage(Mat& image, double sigma)
-{
-	if (sigma <= 0.0)
-	{
-		return;
-	}
-	//smooth the image 
-	// This is another example of a convolution / filtering operation, this time with a 
-	// Gaussian kernel. You could also use all ones to get the mean of the pixels in the image
-	GaussianBlur(image, image, Size(0, 0), sigma, sigma, BORDER_DEFAULT);
-}
 
 void onTrackbar(int value, void* data)
 {
@@ -724,11 +585,25 @@ void onTrackbarRed(int value, void* data)
 
 }
 
+void onTrackbarRed2(int value, void* data)
+{
+
+	redThreshold2 = value;
+
+}
+
 
 void onTrackbarBlue(int value, void* data)
 {
 
 	blueThreshold = value;
+
+}
+
+void onTrackbarBlue2(int value, void* data)
+{
+
+	blueThreshold2 = value;
 
 }
 
@@ -741,7 +616,7 @@ void onTrackbarYellow(int value, void* data)
 
 void onTrackbarSelect(int colorNum, void* data)
 {
-	colorNumber = colorNumber;
+	colorNumber = colorNumber; // check
 }
 
 void drawOutline(Mat& image, vector<Point>& outline,int blue,int green,int red)
@@ -778,7 +653,7 @@ bool findLargestRedObject(Mat& view, Point& location, vector<Point>& outline, in
 	//Find all of the contiguous image regions
 	findContours(justRed[0], objectContours, dummy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 	if (imshow){
-	cv::imshow("Just Red", justRed[0]);
+		justRed[0].copyTo(vector_mat[0]);
 	}
 	//find the largest object
 	int largestArea(-1), largestIndex(-1);
@@ -795,6 +670,77 @@ bool findLargestRedObject(Mat& view, Point& location, vector<Point>& outline, in
 			largestIndex = i;
 			largestCenter = tempCenter;
 			currentRedArea = largestArea;
+		}
+	}
+	location = largestCenter;
+	if (largestIndex >= 0)
+	{
+		outline = objectContours[largestIndex];
+	}
+
+	//Construct an image for display that shows the red channel as gray
+	mixChannels(&(YCrCb[0]), 1, &(displayRed[0]), 1, extractRed, 3);
+	if (largestIndex >= 0)
+	{
+		//put a red circle around the red object
+		circle(displayRed[0], largestCenter, std::min(double(view.cols) / 2, sqrt(largestArea)), Scalar(0, 0, 255), 1);
+	}
+	//imshow("Just Red", displayRed[0]);
+
+
+	if (largestIndex >= 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
+}
+
+bool findLargestRedObject2(Mat& view, Point& location, vector<Point>& outline, int redThreshold, int colorNum, bool imshow)
+{
+	//allocate some images to store intermediate results
+	vector<Mat> YCrCb;
+	YCrCb.push_back(Mat(view.rows, view.cols, CV_8UC3));
+	vector<Mat> justRed;
+	justRed.push_back(Mat(view.rows, view.cols, CV_8UC1));
+	vector<Mat> displayRed;
+	displayRed.push_back(Mat(view.rows, view.cols, CV_8UC3));
+
+	//Switch color spaces to YCrCb so we can detect red objects even if they are dark
+	cvtColor(view, YCrCb[0], CV_BGR2YCrCb);
+
+	//Pull out just the red channel
+	int extractRed[6] = { 1, 0, 1, 1, 1, 2 };
+	mixChannels(&(YCrCb[0]), 1, &(justRed[0]), 1, extractRed, 1);
+
+	// Threshold the red object (with the threshold from the slider)
+	threshold(justRed[0], justRed[0], redThreshold, 255, CV_THRESH_BINARY);
+	vector<vector<Point>> objectContours;
+	vector<Vec4i> dummy;
+
+	//Find all of the contiguous image regions
+	findContours(justRed[0], objectContours, dummy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+	if (imshow){
+		justRed[0].copyTo(vector_mat[1]);
+	}
+	//find the largest object
+	int largestArea(-1), largestIndex(-1);
+	Point largestCenter;
+	for (int i = 0; i<objectContours.size(); i++)
+	{
+		Point tempCenter;
+		double tempArea;
+		computeObjectAreaAndCenter(objectContours[i], tempArea, tempCenter);
+
+		if (tempArea > largestArea)
+		{
+			largestArea = tempArea;
+			largestIndex = i;
+			largestCenter = tempCenter;
+			currentRedArea2 = largestArea;
 		}
 	}
 	location = largestCenter;
@@ -857,7 +803,8 @@ bool findLargestBlueObject(Mat& view, Point& location, vector<Point>& outline, i
 	vector<vector<Point>> objectContours;
 	vector<Vec4i> dummy;
 	if(imshow){
-		cv::imshow("Just Blue", justBlue[0]);
+		justBlue[0].copyTo(vector_mat[0]);
+		//cv::imshow("Just Blue", justBlue[0]);
 	}
 	//Find all of the contiguous image regions
 	findContours(justBlue[0], objectContours, dummy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
@@ -877,6 +824,78 @@ bool findLargestBlueObject(Mat& view, Point& location, vector<Point>& outline, i
 			largestIndex = i;
 			largestCenter = tempCenter;
 			currentBlueArea = largestArea;
+		}
+	}
+	location = largestCenter;
+	if (largestIndex >= 0)
+	{
+		outline = objectContours[largestIndex];
+	}
+
+	//Construct an image for display that shows the red channel as gray
+	mixChannels(&(YCrCb[0]), 1, &(displayBlue[0]), 1, extractBlue, 3);
+	if (largestIndex >= 0)
+	{
+		//put a red circle around the red object
+		circle(displayBlue[0], largestCenter, std::min(double(view.cols) / 2, sqrt(largestArea)), Scalar(0, 0, 255), 1);
+	}
+	//imshow("Just blue", displayBlue[0]);
+
+
+	if (largestIndex >= 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
+}
+
+bool findLargestBlueObject2(Mat& view, Point& location, vector<Point>& outline, int blueThreshold, int colorNum, bool imshow)
+{
+	//allocate some images to store intermediate results
+	vector<Mat> YCrCb;
+	YCrCb.push_back(Mat(view.rows, view.cols, CV_8UC3));
+	vector<Mat> justBlue;
+	justBlue.push_back(Mat(view.rows, view.cols, CV_8UC1));
+	vector<Mat> displayBlue;
+	displayBlue.push_back(Mat(view.rows, view.cols, CV_8UC3));
+
+	//Switch color spaces to YCrCb so we can detect red objects even if they are dark
+	cvtColor(view, YCrCb[0], CV_BGR2YCrCb);
+
+	//Pull out just the red channel
+	int extractBlue[6] = { 2, 0, 2, 1, 2, 2 };
+	mixChannels(&(YCrCb[0]), 1, &(justBlue[0]), 1, extractBlue, 1);
+
+	// Threshold the red object (with the threshold from the slider)
+	threshold(justBlue[0], justBlue[0], blueThreshold, 255, CV_THRESH_BINARY);
+	vector<vector<Point>> objectContours;
+	vector<Vec4i> dummy;
+	if (imshow){
+		justBlue[0].copyTo(vector_mat[1]);
+		//cv::imshow("Just Blue", justBlue[0]);
+	}
+	//Find all of the contiguous image regions
+	findContours(justBlue[0], objectContours, dummy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+
+	//find the largest object
+	int largestArea(-1), largestIndex(-1);
+	Point largestCenter;
+	for (int i = 0; i<objectContours.size(); i++)
+	{
+		Point tempCenter;
+		double tempArea;
+		computeObjectAreaAndCenter(objectContours[i], tempArea, tempCenter);
+
+		if (tempArea > largestArea)
+		{
+			largestArea = tempArea;
+			largestIndex = i;
+			largestCenter = tempCenter;
+			currentBlueArea2 = largestArea;
 		}
 	}
 	location = largestCenter;
@@ -1033,7 +1052,8 @@ bool findLargestGreenObject(Mat& view, Point& location, vector<Point>& outline, 
 	vector<vector<Point>> objectContours;
 	vector<Vec4i> dummy;
 	if (imshow){
-		cv::imshow("Just Green", justGreen[0]);
+		justGreen[0].copyTo(vector_mat[0]);
+		//cv::imshow("Just Green", justGreen[0]);
 	}
 	//justGreenG = justGreen[0];
 	//Find all of the contiguous image regions
@@ -1054,6 +1074,88 @@ bool findLargestGreenObject(Mat& view, Point& location, vector<Point>& outline, 
 			largestIndex = i;
 			largestCenter = tempCenter;
 			currentGreenArea = largestArea;
+		}
+	}
+	location = largestCenter;
+	if (largestIndex >= 0)
+	{
+		outline = objectContours[largestIndex];
+	}
+
+	//Construct an image for display that shows the red channel as gray
+	//mixChannels(&(YCrCb[0]), 1, &(displayRed[0]), 1, extractRed, 3);
+	if (largestIndex >= 0)
+	{
+		//put a red circle around the red object
+		circle(displayGreen[0], largestCenter, std::min(double(view.cols) / 2, sqrt(largestArea)), Scalar(0, 0, 255), 1);
+	}
+	//imshow("Just Green", displayGreen[0]);
+
+
+	if (largestIndex >= 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
+}
+
+
+bool findLargestGreenObject2(Mat& view, Point& location, vector<Point>& outline, int redThreshold, int colorNum, bool imshow)
+{
+	//allocate some images to store intermediate results
+	vector<Mat> YCrCb;
+	YCrCb.push_back(Mat(view.rows, view.cols, CV_8UC3));
+	Vector<Mat> justGreen;
+	justGreen.push_back(Mat(view.rows, view.cols, CV_8UC1));
+	vector<Mat> displayGreen;
+	displayGreen.push_back(Mat(view.rows, view.cols, CV_8UC3));
+
+	//Switch color spaces to YCrCb so we can detect red objects even if they are dark
+	cvtColor(view, YCrCb[0], CV_BGR2HSV);
+
+	//Pull out just the red channel
+	//int extractRed[6] = { 1, 0, 1, 1, 1, 2 };
+	//mixChannels(&(YCrCb[0]), 1, &(justRed[0]), 1, extractRed, 1);
+
+	// Threshold the red object (with the threshold from the slider)
+
+	//inRange(YCrCb[0], Scalar(39, 4, 28), Scalar(98, 161, 251), justGreen[0]); //Threshold the image
+	inRange(YCrCb[0], Scalar(hLow2[colorNum], sLow2[colorNum], vLow2[colorNum]), Scalar(hHigh2[colorNum], sHigh2[colorNum], vHigh2[colorNum]), justGreen[0]); //Threshold the image
+	//inRange(view, Scalar(47, 82, 0), Scalar(111, 255, 103), justGreen[0]); //Threshold the image lib
+	//imshow("green before", justGreen[0]);
+	equalizeHist(justGreen[0], justGreen[0]);
+	//imshow("green after", justGreen[0]);
+	threshold(justGreen[0], justGreen[0], 0, 255, THRESH_BINARY);
+	//imshow("GREEN", justGreen[0]);
+	vector<vector<Point>> objectContours;
+	vector<Vec4i> dummy;
+	if (imshow){
+		justGreen[0].copyTo(vector_mat[1]);
+		//cv::imshow("Just Green", justGreen[0]);
+	}
+	//justGreenG = justGreen[0];
+	//Find all of the contiguous image regions
+	findContours(justGreen[0], objectContours, dummy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+
+	//find the largest object
+	int largestArea(-1), largestIndex(-1);
+	Point largestCenter;
+	for (int i = 0; i<objectContours.size(); i++)
+	{
+		Point tempCenter;
+		double tempArea;
+		computeObjectAreaAndCenter(objectContours[i], tempArea, tempCenter);
+
+		if (tempArea > largestArea)
+		{
+			largestArea = tempArea;
+			largestIndex = i;
+			largestCenter = tempCenter;
+			currentGreenArea2 = largestArea;
 		}
 	}
 	location = largestCenter;
@@ -1259,3 +1361,54 @@ bool findLargestWhiteObject(Mat& view, Point& location, vector<Point>& outline, 
 	}
 
 }
+
+/**
+* @brief makeCanvas Makes composite image from the given images
+* @param vecMat Vector of Images.
+* @param windowHeight The height of the new composite image to be formed.
+* @param nRows Number of rows of images. (Number of columns will be calculated
+*              depending on the value of total number of images).
+* @return new composite image.
+*/
+cv::Mat makeCanvas(std::vector<cv::Mat>& vecMat, int windowHeight, int nRows) {
+	int N = vecMat.size();
+	nRows = nRows > N ? N : nRows;
+	int edgeThickness = 10;
+	int imagesPerRow = ceil(double(N) / nRows);
+	int resizeHeight = floor(2.0 * ((floor(double(windowHeight - edgeThickness) / nRows)) / 2.0)) - edgeThickness;
+	int maxRowLength = 0;
+
+	std::vector<int> resizeWidth;
+	for (int i = 0; i < N;) {
+		int thisRowLen = 0;
+		for (int k = 0; k < imagesPerRow; k++) {
+			double aspectRatio = double(vecMat[i].cols) / vecMat[i].rows;
+			int temp = int(ceil(resizeHeight * aspectRatio));
+			resizeWidth.push_back(temp);
+			thisRowLen += temp;
+			if (++i == N) break;
+		}
+		if ((thisRowLen + edgeThickness * (imagesPerRow + 1)) > maxRowLength) {
+			maxRowLength = thisRowLen + edgeThickness * (imagesPerRow + 1);
+		}
+	}
+	int windowWidth = maxRowLength;
+
+	Mat canvasImage(windowHeight, windowWidth, CV_8UC3, Scalar(0, 0, 0));
+
+	for (int k = 0, i = 0; i < nRows; i++) {
+		int y = i * resizeHeight + (i + 1) * edgeThickness;
+		int x_end = edgeThickness;
+		for (int j = 0; j < imagesPerRow && k < N; k++, j++) {
+			int x = x_end;
+			cv::Rect roi(x, y, resizeWidth[k], resizeHeight);
+			cv::Mat target_ROI = canvasImage(roi);
+			cv::resize(vecMat[k], target_ROI, target_ROI.size());
+			x_end += resizeWidth[k] + edgeThickness;
+		}
+	}
+	
+	return canvasImage;
+}
+
+
