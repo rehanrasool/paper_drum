@@ -88,12 +88,14 @@ cv::Mat makeCanvas(std::vector<cv::Mat>& vecMat, int windowHeight, int nRows);
 void setHSV(int colorNumber);
 void computeObjectAreaAndCenter(vector<Point>& outline, double& area, Point& center);
 
-Rect selection[5];
+Rect selection0[5];
+Rect selection1[5];
 int trackObject = 0;
 bool selectObject = false;
 Point origin;
 
-void onMouse(int event, int x, int y, int, void*);
+void onMouse1(int event, int x, int y, int, void*);
+void onMouse2(int event, int x, int y, int, void*);
 bool findLargestRedObject(Mat& view, Point& location, vector<Point>& outline, int redThreshold, int colorNum, bool imshow);
 bool findLargestRedObject2(Mat& view, Point& location, vector<Point>& outline, int redThreshold, int colorNum, bool imshow);
 bool findLargestBlueObject(Mat& view, Point& location, vector<Point>& outline, int blueThreshold, int colorNum,bool imshow);
@@ -192,13 +194,14 @@ int iLowV2 = 0;
 int iHighV2 = 255;
 
 //Store cropped images
-Mat rois[10];
+Mat rois0[5];
+Mat rois1[5];
 
 
 vector<Mat> vector_mat(2); // stores masks
 vector<Mat> views_vector(4); // stores views and masks
 
-Mat view, view2, view0, view1, imgThresholded, imgHSV, mask, orientation, previousFrame, previousFrame2;
+Mat view0, view1, imgThresholded, imgHSV, mask, orientation, previousFrame, previousFrame2;
 
 int main(int argc, char* argv[])
 {
@@ -290,17 +293,18 @@ int main(int argc, char* argv[])
 		//grab and retrieve each frames of the video sequentially 
 		capture >> view0;
 		capture2 >> view1;
-		imshow("View 0 ", view0);
-		setMouseCallback("View 0", onMouse, 0);
-		view2.copyTo(previousFrame2);// saves the previous frame
+		imshow("View 0", view0);
+		imshow("View 1", view1);
+		//roi = Mat(view0, selection[colorNumber]);
+		//rois[colorNumber] = roi;
+		setMouseCallback("View 0", onMouse1, 0);
+		setMouseCallback("View 1", onMouse2, 0);
+		//if (roi.rows > 0){
+			//imshow("ROI", rois[colorNumber]);
+			//}
 		capture2.read(view1);
-		view1.copyTo(view2);
-		cvtColor(view2, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
 
-		view.copyTo(previousFrame);// saves the previous frame
 		capture.read(view0);
-		view0.copyTo(view);
-		cvtColor(view, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
 		
 		if (bRecording)
 		{
@@ -308,59 +312,61 @@ int main(int argc, char* argv[])
 				
 			case 0: // red
 
-					roi = Mat(view0, selection[colorNumber]);
-					rois[colorNumber] = roi;
+					roi = Mat(view0, selection0[colorNumber]);
+					rois0[colorNumber] = roi;
 					if (roi.rows > 0){
-						imshow("ROI", rois[colorNumber]);
+						imshow("ROI1", rois0[colorNumber]);
 
-						findLargestRedObject(rois[colorNumber], red, outlineRed, redThreshold, 0, true);
-						drawOutline(rois[colorNumber], outlineRed, 255, 0, 0);
+						findLargestRedObject(rois0[colorNumber], red, outlineRed, redThreshold, 0, true);
+						drawOutline(rois0[colorNumber], outlineRed, 255, 0, 0);
 					}
-					else{
-						findLargestRedObject(view0, red, outlineRed, redThreshold, 0, true);
-						drawOutline(view0, outlineRed, 255, 0, 0);
+					
+					roi = Mat(view1, selection1[colorNumber]);
+					rois1[colorNumber] = roi;
+					if (roi.rows > 0){
+						imshow("ROI1", rois1[colorNumber]);
+						findLargestRedObject2(rois1[colorNumber], red2, outlineRed2, redThreshold2, 0, true);
+						drawOutline(rois1[colorNumber], outlineRed2, 255, 0, 0);
 					}
-						findLargestRedObject2(view2, red2, outlineRed2, redThreshold2, 0, true);
-						drawOutline(view1, outlineRed2, 255, 0, 0);
 					
 
 				break;
 			case 1: // green
 			
 					  setHSV(colorNumber);
-					  findLargestGreenObject(view, green, outlineGreen, greenThreshold,1,true);
+					  findLargestGreenObject(view0, green, outlineGreen, greenThreshold,1,true);
 					  drawOutline(view0, outlineGreen, 0, 255, 0);
 
-					  findLargestGreenObject2(view2, green2, outlineGreen2, greenThreshold2, 1, true);
+					  findLargestGreenObject2(view1, green2, outlineGreen2, greenThreshold2, 1, true);
 					  drawOutline(view1, outlineGreen2, 0, 255, 0);
 
 				break;
 			case 2: // blue
 			
-					  findLargestBlueObject(view, blue, outlineBlue, blueThreshold,2,true);
+					  findLargestBlueObject(view0, blue, outlineBlue, blueThreshold,2,true);
 					  drawOutline(view0, outlineBlue, 0, 0, 255);
 
-					  findLargestBlueObject2(view2, blue2, outlineBlue2, blueThreshold2, 2, true);
+					  findLargestBlueObject2(view1, blue2, outlineBlue2, blueThreshold2, 2, true);
 					  drawOutline(view1, outlineBlue2, 0, 0, 255);
 
 				break;
 			case 3: // purple
 			
 					  setHSV(colorNumber);
-					  findLargestPurpleObject(view, purple, outlinePurple, purpleThreshold,3,true);
+					  findLargestPurpleObject(view0, purple, outlinePurple, purpleThreshold,3,true);
 					  drawOutline(view0, outlinePurple, 255, 0, 128);
 
-					  findLargestPurpleObject2(view2, purple2, outlinePurple2, purpleThreshold2, 3, true);
+					  findLargestPurpleObject2(view1, purple2, outlinePurple2, purpleThreshold2, 3, true);
 					  drawOutline(view1, outlinePurple2, 255, 0, 128);
 
 				break;
 			case 4:
 			
 					  setHSV(colorNumber);
-					  findLargestBrownObject(view, brown, outlineBrown, brownThreshold,4,true);
+					  findLargestBrownObject(view0, brown, outlineBrown, brownThreshold,4,true);
 					  drawOutline(view0, outlineBrown, 255, 255, 0);
 
-					  findLargestBrownObject2(view2, brown2, outlineBrown2, brownThreshold2, 4, true);
+					  findLargestBrownObject2(view1, brown2, outlineBrown2, brownThreshold2, 4, true);
 					  drawOutline(view1, outlineBrown2, 255, 255, 0);
 			
 				break;
@@ -375,17 +381,17 @@ int main(int argc, char* argv[])
 					destroyWindow("Just Red");
 				}
 				if (count % 3 == 0){
-					findLargestRedObject(view, red, outlineRed, redThreshold, 0, false);
-					findLargestPurpleObject(view, purple, outlinePurple, purpleThreshold, 3, false);
-					findLargestBlueObject(view, blue, outlineBlue, blueThreshold, 2, false);
-					findLargestBrownObject(view, brown, outlineBrown, brownThreshold, 4, true);
-					findLargestGreenObject(view, green, outlineGreen, greenThreshold, 1, false);
+					findLargestRedObject(view0, red, outlineRed, redThreshold, 0, false);
+					findLargestPurpleObject(view0, purple, outlinePurple, purpleThreshold, 3, false);
+					findLargestBlueObject(view0, blue, outlineBlue, blueThreshold, 2, false);
+					findLargestBrownObject(view0, brown, outlineBrown, brownThreshold, 4, true);
+					findLargestGreenObject(view0, green, outlineGreen, greenThreshold, 1, false);
 
-					findLargestRedObject2(view2, red2, outlineRed2, redThreshold2, 0, false);
-					findLargestPurpleObject(view2, purple2, outlinePurple2, purpleThreshold2, 3, false);
-					findLargestBlueObject2(view2, blue2, outlineBlue2, blueThreshold2, 2, false);
-					findLargestBrownObject2(view2, brown2, outlineBrown2, brownThreshold2, 4, true);
-					findLargestGreenObject2(view2, green2, outlineGreen2, greenThreshold2, 1, false);
+					findLargestRedObject2(view1, red2, outlineRed2, redThreshold2, 0, false);
+					findLargestPurpleObject(view1, purple2, outlinePurple2, purpleThreshold2, 3, false);
+					findLargestBlueObject2(view1, blue2, outlineBlue2, blueThreshold2, 2, false);
+					findLargestBrownObject2(view1, brown2, outlineBrown2, brownThreshold2, 4, true);
+					findLargestGreenObject2(view1, green2, outlineGreen2, greenThreshold2, 1, false);
 				}
 
 				int percentAreaCoveredRed = 100 - ((currentRedArea * 100) / largestRedArea);
@@ -535,28 +541,55 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-static void onMouse(int event, int x, int y, int, void*)
+static void onMouse1(int event, int x, int y, int, void*)
 {
 	if (selectObject)
 	{
-		selection[colorNumber].x = MIN(x, origin.x);
-		selection[colorNumber].y = MIN(y, origin.y);
-		selection[colorNumber].width = std::abs(x - origin.x);
-		selection[colorNumber].height = std::abs(y - origin.y);
+		selection0[colorNumber].x = MIN(x, origin.x);
+		selection0[colorNumber].y = MIN(y, origin.y);
+		selection0[colorNumber].width = std::abs(x - origin.x);
+		selection0[colorNumber].height = std::abs(y - origin.y);
 
-		selection[colorNumber] &= Rect(0, 0, view0.cols, view0.rows);
+		selection0[colorNumber] &= Rect(0, 0, view0.cols, view0.rows);
 	}
 
 	switch (event)
 	{
 	case EVENT_LBUTTONDOWN:
 		origin = Point(x, y);
-		selection[colorNumber] = Rect(x, y, 0, 0);
+		selection0[colorNumber] = Rect(x, y, 0, 0);
 		selectObject = true;
 		break;
 	case EVENT_LBUTTONUP:
 		selectObject = false;
-		if (selection[colorNumber].width > 0 && selection[colorNumber].height > 0)
+		if (selection0[colorNumber].width > 0 && selection0[colorNumber].height > 0)
+			trackObject = -1;
+		break;
+	}
+}
+
+static void onMouse2(int event, int x, int y, int, void*)
+{
+	if (selectObject)
+	{
+		selection1[colorNumber].x = MIN(x, origin.x);
+		selection1[colorNumber].y = MIN(y, origin.y);
+		selection1[colorNumber].width = std::abs(x - origin.x);
+		selection1[colorNumber].height = std::abs(y - origin.y);
+
+		selection1[colorNumber] &= Rect(0, 0, view0.cols, view0.rows);
+	}
+
+	switch (event)
+	{
+	case EVENT_LBUTTONDOWN:
+		origin = Point(x, y);
+		selection1[colorNumber] = Rect(x, y, 0, 0);
+		selectObject = true;
+		break;
+	case EVENT_LBUTTONUP:
+		selectObject = false;
+		if (selection1[colorNumber].width > 0 && selection1[colorNumber].height > 0)
 			trackObject = -1;
 		break;
 	}
