@@ -299,6 +299,7 @@ int main(int argc, char* argv[])
 		//rois[colorNumber] = roi;
 		setMouseCallback("View 0", onMouse1, 0);
 		setMouseCallback("View 1", onMouse2, 0);
+
 		//if (roi.rows > 0){
 			//imshow("ROI", rois[colorNumber]);
 			//}
@@ -311,63 +312,92 @@ int main(int argc, char* argv[])
 			switch (colorNumber){
 				
 			case 0: // red
-
+				
 					roi = Mat(view0, selection0[colorNumber]);
 					rois0[colorNumber] = roi;
 					if (roi.rows > 0){
-						imshow("ROI1", rois0[colorNumber]);
-
 						findLargestRedObject(rois0[colorNumber], red, outlineRed, redThreshold, 0, true);
 						drawOutline(rois0[colorNumber], outlineRed, 255, 0, 0);
 					}
-					
+				
+						
 					roi = Mat(view1, selection1[colorNumber]);
 					rois1[colorNumber] = roi;
 					if (roi.rows > 0){
-						imshow("ROI1", rois1[colorNumber]);
 						findLargestRedObject2(rois1[colorNumber], red2, outlineRed2, redThreshold2, 0, true);
 						drawOutline(rois1[colorNumber], outlineRed2, 255, 0, 0);
 					}
+				
 					
 
 				break;
 			case 1: // green
 			
 					  setHSV(colorNumber);
-					  findLargestGreenObject(view0, green, outlineGreen, greenThreshold,1,true);
-					  drawOutline(view0, outlineGreen, 0, 255, 0);
+					  roi = Mat(view0, selection0[colorNumber]);
+					  rois0[colorNumber] = roi;
+					  if (roi.rows > 0){
+						  findLargestGreenObject(rois0[colorNumber], green, outlineGreen, greenThreshold, 1, true);
+						  drawOutline(rois0[colorNumber], outlineGreen, 0, 255, 0);
+					  }
 
-					  findLargestGreenObject2(view1, green2, outlineGreen2, greenThreshold2, 1, true);
-					  drawOutline(view1, outlineGreen2, 0, 255, 0);
+					  roi = Mat(view1, selection1[colorNumber]);
+					  rois1[colorNumber] = roi;
+					  if (roi.rows > 0){
+						  findLargestGreenObject2(rois1[colorNumber], green2, outlineGreen2, greenThreshold2, 1, true);
+						  drawOutline(rois1[colorNumber], outlineGreen2, 0, 255, 0);
+					  }
 
 				break;
 			case 2: // blue
-			
-					  findLargestBlueObject(view0, blue, outlineBlue, blueThreshold,2,true);
-					  drawOutline(view0, outlineBlue, 0, 0, 255);
+					roi = Mat(view0, selection0[colorNumber]);
+					rois0[colorNumber] = roi;
+					if (roi.rows > 0){
+						findLargestBlueObject(view0, blue, outlineBlue, blueThreshold, 2, true);
+						drawOutline(view0, outlineBlue, 0, 0, 255);
+					}
 
-					  findLargestBlueObject2(view1, blue2, outlineBlue2, blueThreshold2, 2, true);
-					  drawOutline(view1, outlineBlue2, 0, 0, 255);
-
+					roi = Mat(view1, selection1[colorNumber]);
+					rois1[colorNumber] = roi;
+					if (roi.rows > 0){
+						findLargestBlueObject2(rois1[colorNumber], blue2, outlineBlue2, blueThreshold2, 2, true);
+						drawOutline(rois1[colorNumber], outlineBlue2, 0, 0, 255);
+					}
 				break;
 			case 3: // purple
 			
 					  setHSV(colorNumber);
-					  findLargestPurpleObject(view0, purple, outlinePurple, purpleThreshold,3,true);
-					  drawOutline(view0, outlinePurple, 255, 0, 128);
+					  roi = Mat(view0, selection0[colorNumber]);
+					  rois0[colorNumber] = roi;
+					  if (roi.rows > 0){
+						  findLargestPurpleObject(rois0[colorNumber], purple, outlinePurple, purpleThreshold, 3, true);
+						  drawOutline(rois0[colorNumber], outlinePurple, 255, 0, 128);
+					  }
 
-					  findLargestPurpleObject2(view1, purple2, outlinePurple2, purpleThreshold2, 3, true);
-					  drawOutline(view1, outlinePurple2, 255, 0, 128);
+					  roi = Mat(view1, selection1[colorNumber]);
+					  rois1[colorNumber] = roi;
+					  if (roi.rows > 0){
+						  findLargestPurpleObject2(rois1[colorNumber], purple2, outlinePurple2, purpleThreshold2, 3, true);
+						  drawOutline(rois1[colorNumber], outlinePurple2, 255, 0, 128);
+					  }
 
 				break;
 			case 4:
 			
 					  setHSV(colorNumber);
-					  findLargestBrownObject(view0, brown, outlineBrown, brownThreshold,4,true);
-					  drawOutline(view0, outlineBrown, 255, 255, 0);
+					  roi = Mat(view0, selection0[colorNumber]);
+					  rois0[colorNumber] = roi;
+					  if (roi.rows > 0){
+						  findLargestBrownObject(rois0[colorNumber], brown, outlineBrown, brownThreshold, 4, true);
+						  drawOutline(rois0[colorNumber], outlineBrown, 255, 255, 0);
+					  }
 
-					  findLargestBrownObject2(view1, brown2, outlineBrown2, brownThreshold2, 4, true);
-					  drawOutline(view1, outlineBrown2, 255, 255, 0);
+					  roi = Mat(view1, selection1[colorNumber]);
+					  rois1[colorNumber] = roi;
+					  if (roi.rows > 0){
+						  findLargestBrownObject2(rois1[colorNumber], brown2, outlineBrown2, brownThreshold2, 4, true);
+						  drawOutline(rois1[colorNumber], outlineBrown2, 255, 255, 0);
+					  }
 			
 				break;
 			case 5:
@@ -381,17 +411,17 @@ int main(int argc, char* argv[])
 					destroyWindow("Just Red");
 				}
 				if (count % 3 == 0){
-					findLargestRedObject(view0, red, outlineRed, redThreshold, 0, false);
-					findLargestPurpleObject(view0, purple, outlinePurple, purpleThreshold, 3, false);
-					findLargestBlueObject(view0, blue, outlineBlue, blueThreshold, 2, false);
-					findLargestBrownObject(view0, brown, outlineBrown, brownThreshold, 4, true);
-					findLargestGreenObject(view0, green, outlineGreen, greenThreshold, 1, false);
+					findLargestRedObject(rois0[0], red, outlineRed, redThreshold, 0, false);
+					findLargestPurpleObject(rois0[1], purple, outlinePurple, purpleThreshold, 3, false);
+					findLargestBlueObject(rois0[2], blue, outlineBlue, blueThreshold, 2, false);
+					findLargestBrownObject(rois0[3], brown, outlineBrown, brownThreshold, 4, true);
+					findLargestGreenObject(rois0[4], green, outlineGreen, greenThreshold, 1, false);
 
-					findLargestRedObject2(view1, red2, outlineRed2, redThreshold2, 0, false);
-					findLargestPurpleObject(view1, purple2, outlinePurple2, purpleThreshold2, 3, false);
-					findLargestBlueObject2(view1, blue2, outlineBlue2, blueThreshold2, 2, false);
-					findLargestBrownObject2(view1, brown2, outlineBrown2, brownThreshold2, 4, true);
-					findLargestGreenObject2(view1, green2, outlineGreen2, greenThreshold2, 1, false);
+					findLargestRedObject2(rois1[0], red2, outlineRed2, redThreshold2, 0, false);
+					findLargestPurpleObject(rois1[1], purple2, outlinePurple2, purpleThreshold2, 3, false);
+					findLargestBlueObject2(rois1[2], blue2, outlineBlue2, blueThreshold2, 2, false);
+					findLargestBrownObject2(rois1[3], brown2, outlineBrown2, brownThreshold2, 4, true);
+					findLargestGreenObject2(rois1[4], green2, outlineGreen2, greenThreshold2, 1, false);
 				}
 
 				int percentAreaCoveredRed = 100 - ((currentRedArea * 100) / largestRedArea);
@@ -452,8 +482,8 @@ int main(int argc, char* argv[])
 
 				
 
-				cout << "covered area green! = " << percentAreaCoveredGreen << endl;
-				cout << "covered area green2! = " << percentAreaCoveredGreen2 << endl;
+				//cout << "covered area green! = " << percentAreaCoveredGreen << endl;
+				//cout << "covered area green2! = " << percentAreaCoveredGreen2 << endl;
 				if (percentAreaCoveredGreen >= 15 && percentAreaCoveredGreen <= 70 && percentAreaCoveredGreen2 >= 5 && percentAreaCoveredGreen2 <= 70 && greenPlayedOffset == 0){
 					se->play2D(soundGreen.c_str());
 					greenPlayedOffset = 3;
@@ -490,7 +520,7 @@ int main(int argc, char* argv[])
 						brownPlayedOffset = 2;
 					}
 					else {
-						brownPlayedOffset = brownPlayedOffset - 1;
+						brownPlayedOffset = brownPlayedOffset - 1; 
 					}
 				}
 
@@ -504,15 +534,15 @@ int main(int argc, char* argv[])
 				break;
 			}
 
-			
-			views_vector[0] = view0;
-			cvtColor(vector_mat[0], views_vector[1], CV_GRAY2RGB);
-			views_vector[2] = view1;
-			cvtColor(vector_mat[1], views_vector[3], CV_GRAY2RGB);
+			if (rois0[colorNumber].rows > 0 && rois1[colorNumber].rows>0){
+				views_vector[0] = rois0[colorNumber];
+				cvtColor(vector_mat[0], views_vector[1], CV_GRAY2RGB);
+				views_vector[2] = rois1[colorNumber];
+				cvtColor(vector_mat[1], views_vector[3], CV_GRAY2RGB);
 
-			imshow("Views", makeCanvas(views_vector, 280, 1));
-			//imshow("view1", view1);
-
+				imshow("Views", makeCanvas(views_vector, 280, 1));
+				//imshow("view1", view1);
+			}
 			frameNumber++;
 		}
 
