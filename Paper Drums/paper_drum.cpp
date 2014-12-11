@@ -279,6 +279,12 @@ int main(int argc, char* argv[])
 	Mat roi;
 	Mat roiVisible;
 
+	string soundRed = "sound/snare_hit.wav";
+	string soundBlue = "sound/hihat_hit.wav";
+	string soundGreen = "sound/tom1_hit.wav";
+	string soundPurple = "sound/tom2_hit.wav";
+	string soundBrown = "sound/floortom_hit.wav";
+
 	while (capture.isOpened())
 	{
 		
@@ -307,7 +313,7 @@ int main(int argc, char* argv[])
 					roi = Mat(view0, selection0[colorNumber]);
 					
 					rois0[colorNumber] = roi;
-					if (roi.rows > 0){
+					if (roi.rows > 0 && roi.rows > 0){
 						imshow("roi", roi);
 						findLargestRedObject(rois0[colorNumber], red, outlineRed, redThreshold, 0, true);
 						drawOutline(rois0[colorNumber], outlineRed, 255, 0, 0);
@@ -316,9 +322,23 @@ int main(int argc, char* argv[])
 						
 					roi = Mat(view1, selection1[colorNumber]);
 					rois1[colorNumber] = roi;
-					if (roi.rows > 0){
+					if (roi.rows > 0 && roi.rows > 0){
 						findLargestRedObject2(rois1[colorNumber], red2, outlineRed2, redThreshold2, 0, true);
 						drawOutline(rois1[colorNumber], outlineRed2, 255, 0, 0);
+
+						int percentAreaCoveredRed = 100 - ((currentRedArea * 100) / largestRedArea);
+						int percentAreaCoveredRed2 = 100 - ((currentRedArea2 * 100) / largestRedArea2);
+
+						if (percentAreaCoveredRed >= 15 && percentAreaCoveredRed <= 70 && percentAreaCoveredRed2 >= 5 && percentAreaCoveredRed2 <= 70){
+							//PlaySound("sound/snare_hit.wav", NULL, SND_ASYNC);
+
+							se->play2D(soundRed.c_str());
+							
+
+
+						}
+
+
 					}
 				
 					
@@ -336,10 +356,24 @@ int main(int argc, char* argv[])
 
 					  roi = Mat(view1, selection1[colorNumber]);
 					  rois1[colorNumber] = roi;
-					  if (roi.rows > 0 && roi.rows > 0) {
+					  if (roi.rows > 0 && roi.cols > 0) {
 						  findLargestGreenObject2(rois1[colorNumber], green2, outlineGreen2, greenThreshold2, 1, true);
 						  drawOutline(rois1[colorNumber], outlineGreen2, 0, 255, 0);
+
+						  int percentAreaCoveredGreen = 100 - ((currentGreenArea * 100) / largestGreenArea);
+						  int percentAreaCoveredGreen2 = 100 - ((currentGreenArea * 100) / largestGreenArea2);
+
+						  if (percentAreaCoveredGreen >= 15 && percentAreaCoveredGreen <= 70 && percentAreaCoveredGreen2 >= 5 && percentAreaCoveredGreen2 <= 70){
+							  //PlaySound("sound/snare_hit.wav", NULL, SND_ASYNC);
+
+							  se->play2D(soundGreen.c_str());
+
+
+						  }
+						 
 					  }
+
+					  
 
 				break;
 			case 2: // blue
@@ -355,6 +389,21 @@ int main(int argc, char* argv[])
 					if (roi.rows > 0 && roi.cols > 0){
 						findLargestBlueObject2(rois1[colorNumber], blue2, outlineBlue2, blueThreshold2, 2, true);
 						drawOutline(rois1[colorNumber], outlineBlue2, 0, 0, 255);
+
+						int percentAreaCoveredBlue = 100 - ((currentBlueArea * 100) / largestBlueArea);
+						int percentAreaCoveredBlue2 = 100 - ((currentBlueArea2 * 100) / largestBlueArea2);
+
+						if (percentAreaCoveredBlue >= 15 && percentAreaCoveredBlue <= 70 && percentAreaCoveredBlue2 >= 5 && percentAreaCoveredBlue2 <= 70){
+							//PlaySound("sound/snare_hit.wav", NULL, SND_ASYNC);
+
+							se->play2D(soundBlue.c_str());
+							redPlayedOffset = 2;
+
+
+						}
+
+
+
 					}
 				break;
 			case 3: // purple
@@ -372,6 +421,17 @@ int main(int argc, char* argv[])
 					  if (roi.rows > 0 && roi.cols > 0){
 						  findLargestPurpleObject2(rois1[colorNumber], purple2, outlinePurple2, purpleThreshold2, 3, true);
 						  drawOutline(rois1[colorNumber], outlinePurple2, 255, 0, 128);
+
+						  int percentAreaCoveredPurple = 100 - ((currentPurpleArea * 100) / largestPurpleArea);
+						  int percentAreaCoveredPurple2 = 100 - ((currentPurpleArea2 * 100) / largestPurpleArea2);
+
+						  if (percentAreaCoveredPurple >= 15 && percentAreaCoveredPurple <= 70 && percentAreaCoveredPurple2 >= 5 && percentAreaCoveredPurple2 <= 70){
+							  //PlaySound("sound/snare_hit.wav", NULL, SND_ASYNC);
+
+							  se->play2D(soundPurple.c_str());
+
+
+						  }
 					  }
 
 				break;
@@ -390,6 +450,17 @@ int main(int argc, char* argv[])
 					  if (roi.rows > 0 && roi.cols > 0){
 						  findLargestBrownObject2(rois1[colorNumber], brown2, outlineBrown2, brownThreshold2, 4, true);
 						  drawOutline(rois1[colorNumber], outlineBrown2, 255, 255, 0);
+
+						  int percentAreaCoveredBrown = 100 - ((currentBrownArea * 100) / largestBrownArea);
+						  int percentAreaCoveredBrown2 = 100 - ((currentBrownArea2 * 100) / largestBrownArea2);
+
+						  if (percentAreaCoveredBrown >= 15 && percentAreaCoveredBrown <= 70 && percentAreaCoveredBrown2 >= 5 && percentAreaCoveredBrown2 <= 70){
+							  //PlaySound("sound/snare_hit.wav", NULL, SND_ASYNC);
+
+							  se->play2D(soundBrown.c_str());
+
+
+						  }
 					  }
 			
 				break;
@@ -437,13 +508,9 @@ int main(int argc, char* argv[])
 				//cout << "covered area red! = " << percentAreaCoveredRed << endl;
 				//cout << "covered area red2! = " << percentAreaCoveredRed2 << endl;
 
-				string soundRed = "sound/snare_hit.wav";
-				string soundBlue = "sound/hihat_hit.wav";
-				string soundGreen = "sound/tom1_hit.wav";
-				string soundPurple = "sound/tom2_hit.wav";
-				string soundBrown = "sound/floortom_hit.wav";
+				
 
-				if (percentAreaCoveredRed >= 15 && percentAreaCoveredRed <= 70 && percentAreaCoveredRed2 >= 5 && percentAreaCoveredRed2 <= 70 && redPlayedOffset == 0){
+				if (percentAreaCoveredRed >= 15 && percentAreaCoveredRed <= 70 && percentAreaCoveredRed2 >= 5 && percentAreaCoveredRed2 <= 70 ){
 					//PlaySound("sound/snare_hit.wav", NULL, SND_ASYNC);
 					
 					se->play2D(soundRed.c_str());
@@ -461,9 +528,9 @@ int main(int argc, char* argv[])
 				}
 
 				
-				if (percentAreaCoveredBlue >= 15 && percentAreaCoveredBlue <= 70 && percentAreaCoveredBlue2 >= 5 && percentAreaCoveredBlue2 <= 70 && bluePlayedOffset == 0){
+				if (percentAreaCoveredBlue >= 15 && percentAreaCoveredBlue <= 70 && percentAreaCoveredBlue2 >= 5 && percentAreaCoveredBlue2 <= 70){
 					se->play2D(soundBlue.c_str());
-					bluePlayedOffset = 3;
+					bluePlayedOffset = 2;
 				}
 				else {
 					if (bluePlayedOffset < 0) {
@@ -492,7 +559,7 @@ int main(int argc, char* argv[])
 				}
 
 
-				if (percentAreaCoveredPurple >= 15 && percentAreaCoveredPurple <= 70 && percentAreaCoveredPurple2 >= 5 && percentAreaCoveredPurple2 <= 70 && purplePlayedOffset == 0){
+				if (percentAreaCoveredPurple >= 15 && percentAreaCoveredPurple <= 70 && percentAreaCoveredPurple2 >= 5 && percentAreaCoveredPurple2 <= 70){
 					se->play2D(soundPurple.c_str());
 					purplePlayedOffset = 3;
 				}
@@ -772,11 +839,11 @@ bool findLargestRedObject(Mat& view, Point& location, vector<Point>& outline, in
 	
 	// Threshold the red object (with the threshold from the slider)
 	threshold(justRed[0], justRed[0], redThreshold, 255, CV_THRESH_BINARY);
-	for (int i = 0; i < 1; i++){
+	/*for (int i = 0; i < 1; i++){
 		erode(justRed[0], justRed[0], Mat(), Point(-1, -1), 2, 1, 1);
 		dilate(justRed[0], justRed[0], Mat(), Point(-1, -1), 2, 1, 1);
 	}
-
+	*/
 	if (imshow){
 		justRed[0].copyTo(vector_mat[0]);
 	}
@@ -850,10 +917,12 @@ bool findLargestRedObject2(Mat& view, Point& location, vector<Point>& outline, i
 
 	// Threshold the red object (with the threshold from the slider)
 	threshold(justRed[0], justRed[0], redThreshold, 255, CV_THRESH_BINARY);
+	/*
 	for (int i = 0; i < 1; i++){
 		erode(justRed[0], justRed[0], Mat(), Point(-1, -1), 2, 1, 1);
 		dilate(justRed[0], justRed[0], Mat(), Point(-1, -1), 2, 1, 1);
 	}
+	*/
 	vector<vector<Point>> objectContours;
 	vector<Vec4i> dummy;
 	if (imshow){
@@ -926,10 +995,12 @@ bool findLargestBlueObject(Mat& view, Point& location, vector<Point>& outline, i
 
 	// Threshold the red object (with the threshold from the slider)
 	threshold(justBlue[0], justBlue[0], blueThreshold, 255, CV_THRESH_BINARY );
+	/*
 	for (int i = 0; i < 1; i++){
 		erode(justBlue[0], justBlue[0], Mat(), Point(-1, -1), 2, 1, 1);
 		dilate(justBlue[0], justBlue[0], Mat(), Point(-1, -1), 2, 1, 1);
 	}
+	*/
 	vector<vector<Point>> objectContours;
 	vector<Vec4i> dummy;
 	if(imshow){
@@ -1002,10 +1073,12 @@ bool findLargestBlueObject2(Mat& view, Point& location, vector<Point>& outline, 
 
 	// Threshold the red object (with the threshold from the slider)
 	threshold(justBlue[0], justBlue[0], blueThreshold, 255, CV_THRESH_BINARY);
+	/*
 	for (int i = 0; i < 1; i++){
 		erode(justBlue[0], justBlue[0], Mat(), Point(-1, -1), 2, 1, 1);
 		dilate(justBlue[0], justBlue[0], Mat(), Point(-1, -1), 2, 1, 1);
 	}
+	*/
 	vector<vector<Point>> objectContours;
 	vector<Vec4i> dummy;
 	if (imshow){
