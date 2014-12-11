@@ -361,11 +361,10 @@ int main(int argc, char* argv[])
 						  drawOutline(rois1[colorNumber], outlineGreen2, 0, 255, 0);
 
 						  int percentAreaCoveredGreen = 100 - ((currentGreenArea * 100) / largestGreenArea);
-						  int percentAreaCoveredGreen2 = 100 - ((currentGreenArea * 100) / largestGreenArea2);
-
+						  int percentAreaCoveredGreen2 = 100 - ((currentGreenArea2 * 100) / largestGreenArea2);
 						  if (percentAreaCoveredGreen >= 15 && percentAreaCoveredGreen <= 70 && percentAreaCoveredGreen2 >= 5 && percentAreaCoveredGreen2 <= 70){
 							  //PlaySound("sound/snare_hit.wav", NULL, SND_ASYNC);
-
+							  cout << "in green" << endl;
 							  se->play2D(soundGreen.c_str());
 
 
@@ -435,7 +434,7 @@ int main(int argc, char* argv[])
 					  }
 
 				break;
-			case 4:
+			case 4://brown
 			
 					  setHSV(colorNumber);
 					  roi = Mat(view0, selection0[colorNumber]);
@@ -476,16 +475,16 @@ int main(int argc, char* argv[])
 				}
 				//if (count % 3 == 0){
 					findLargestRedObject(rois0[0], red, outlineRed, redThreshold, 0, false);
-					findLargestPurpleObject(rois0[1], purple, outlinePurple, purpleThreshold, 3, false);
+					findLargestPurpleObject(rois0[3], purple, outlinePurple, purpleThreshold, 3, false);
 					findLargestBlueObject(rois0[2], blue, outlineBlue, blueThreshold, 2, false);
-					findLargestBrownObject(rois0[3], brown, outlineBrown, brownThreshold, 4, true);
-					findLargestGreenObject(rois0[4], green, outlineGreen, greenThreshold, 1, false);
+					findLargestBrownObject(rois0[4], brown, outlineBrown, brownThreshold, 4, true);
+					findLargestGreenObject(rois0[1], green, outlineGreen, greenThreshold, 1, false);
 
 					findLargestRedObject2(rois1[0], red2, outlineRed2, redThreshold2, 0, false);
-					findLargestPurpleObject(rois1[1], purple2, outlinePurple2, purpleThreshold2, 3, false);
+					findLargestPurpleObject2(rois1[3], purple2, outlinePurple2, purpleThreshold2, 3, false);
 					findLargestBlueObject2(rois1[2], blue2, outlineBlue2, blueThreshold2, 2, false);
-					findLargestBrownObject2(rois1[3], brown2, outlineBrown2, brownThreshold2, 4, true);
-					findLargestGreenObject2(rois1[4], green2, outlineGreen2, greenThreshold2, 1, false);
+					findLargestBrownObject2(rois1[4], brown2, outlineBrown2, brownThreshold2, 4, true);
+					findLargestGreenObject2(rois1[1], green2, outlineGreen2, greenThreshold2, 1, false);
 				//}
 
 				int percentAreaCoveredRed = 100 - ((currentRedArea * 100) / largestRedArea);
@@ -545,7 +544,7 @@ int main(int argc, char* argv[])
 
 				//cout << "covered area green! = " << percentAreaCoveredGreen << endl;
 				//cout << "covered area green2! = " << percentAreaCoveredGreen2 << endl;
-				if (percentAreaCoveredGreen >= 15 && percentAreaCoveredGreen <= 70 && percentAreaCoveredGreen2 >= 5 && percentAreaCoveredGreen2 <= 70 && greenPlayedOffset == 0){
+				if (percentAreaCoveredGreen >= 15 && percentAreaCoveredGreen <= 70 && percentAreaCoveredGreen2 >= 5 && percentAreaCoveredGreen2 <= 70){
 					se->play2D(soundGreen.c_str());
 					greenPlayedOffset = 3;
 				}
