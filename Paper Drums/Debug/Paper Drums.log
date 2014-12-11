@@ -1,11 +1,49 @@
-﻿Build started 12/9/2014 6:46:34 PM.
-     1>Project "C:\Users\Rehan Rasool\Desktop\Paper Drums\Paper Drums\Paper Drums.vcxproj" on node 2 (Build target(s)).
-     1>Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Rehan Rasool\Desktop\Paper Drums\Debug\Paper Drums.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\workspaces\opencv\build\x86\vc12\lib opencv_calib3d249d.lib opencv_contrib249d.lib opencv_core249d.lib opencv_features2d249d.lib opencv_flann249d.lib opencv_gpu249d.lib opencv_highgui249d.lib opencv_imgproc249d.lib opencv_legacy249d.lib opencv_ml249d.lib opencv_nonfree249d.lib opencv_objdetect249d.lib opencv_ocl249d.lib opencv_photo249d.lib opencv_stitching249d.lib opencv_superres249d.lib opencv_ts249d.lib opencv_video249d.lib opencv_videostab249d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib WinMM.lib WinMM.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Rehan Rasool\Desktop\Paper Drums\Debug\Paper Drums.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Rehan Rasool\Desktop\Paper Drums\Debug\Paper Drums.lib" /MACHINE:X86 Debug\paper_drum.obj
+﻿Build started 12/11/2014 1:23:51 AM.
+     1>Project "C:\workspaces\C++\paper_drum\Paper Drums\Paper Drums.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Visual Studio 2013\VC\bin\CL.exe /c /IC:\workspaces\opencv\build\include /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt paper_drum.cpp
+         paper_drum.cpp
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(230): warning C4101: 'smoothSlider' : unreferenced local variable
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(817): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(818): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(859): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(867): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(884): warning C4244: 'argument' : conversion from 'const double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(937): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(945): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(962): warning C4244: 'argument' : conversion from 'const double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1015): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1023): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1040): warning C4244: 'argument' : conversion from 'const double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1093): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1101): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1118): warning C4244: 'argument' : conversion from 'const double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1185): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1193): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1210): warning C4244: 'argument' : conversion from 'const double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1273): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1281): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1296): warning C4244: 'argument' : conversion from 'const double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1345): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1353): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1368): warning C4244: 'argument' : conversion from 'const double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1419): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1427): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1442): warning C4244: 'argument' : conversion from 'const double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1493): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1501): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1518): warning C4244: 'argument' : conversion from 'const double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1568): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1576): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1593): warning C4244: 'argument' : conversion from 'const double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1621): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>c:\workspaces\c++\paper_drum\paper drums\paper_drum.cpp(1622): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+       Link:
+         C:\Visual Studio 2013\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\workspaces\C++\paper_drum\Paper Drums\Debug\Paper Drums.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\workspaces\opencv\build\x86\vc12\lib opencv_calib3d249d.lib opencv_contrib249d.lib opencv_core249d.lib opencv_features2d249d.lib opencv_flann249d.lib opencv_gpu249d.lib opencv_highgui249d.lib opencv_imgproc249d.lib opencv_legacy249d.lib opencv_ml249d.lib opencv_nonfree249d.lib opencv_objdetect249d.lib opencv_ocl249d.lib opencv_photo249d.lib opencv_stitching249d.lib opencv_superres249d.lib opencv_ts249d.lib opencv_video249d.lib opencv_videostab249d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib WinMM.lib WinMM.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\workspaces\C++\paper_drum\Paper Drums\Debug\Paper Drums.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\workspaces\C++\paper_drum\Paper Drums\Debug\Paper Drums.lib" /MACHINE:X86 Debug\paper_drum.obj
          Debug\stdafx.obj
-         Paper Drums.vcxproj -> C:\Users\Rehan Rasool\Desktop\Paper Drums\Debug\Paper Drums.exe
-     1>Done Building Project "C:\Users\Rehan Rasool\Desktop\Paper Drums\Paper Drums\Paper Drums.vcxproj" (Build target(s)).
+         Paper Drums.vcxproj -> C:\workspaces\C++\paper_drum\Paper Drums\Debug\Paper Drums.exe
+     1>Done Building Project "C:\workspaces\C++\paper_drum\Paper Drums\Paper Drums.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.38
+Time Elapsed 00:00:01.29
