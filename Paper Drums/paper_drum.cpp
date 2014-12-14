@@ -214,23 +214,23 @@ int main(int argc, char* argv[])
 
 	//create a slider in the window
 	createTrackbar("Color", "Views", &colorNumber, 6, onTrackbarSelect);
-	createTrackbar("Red", "Views", &redThreshold, 255, onTrackbarRed);
-	createTrackbar("Red2", "Views", &redThreshold2, 255, onTrackbarRed2);
-	createTrackbar("Blue", "Views", &blueThreshold, 255, onTrackbarBlue);
-	createTrackbar("Blue2", "Views", &blueThreshold2, 255, onTrackbarBlue2);
-	createTrackbar("RedTwo", "Views", &redThresholdTwo, 255, onTrackbarRed);
-	createTrackbar("Red2Two", "Views", &redThreshold2Two, 255, onTrackbarRed2);
-	createTrackbar("BlueTwo", "Views", &blueThresholdTwo, 255, onTrackbarBlue);
-	createTrackbar("Blue2Two", "Views", &blueThreshold2Two, 255, onTrackbarBlue2);
-	createTrackbar("RedThree", "Views", &redThresholdThree, 255, onTrackbarRed);
-	createTrackbar("Red2Three", "Views", &redThreshold2Three, 255, onTrackbarRed2);
+	createTrackbar("HiHat Cam1", "Views", &redThreshold, 255, onTrackbarRed);
+	createTrackbar("HiHat Cam2", "Views", &redThreshold2, 255, onTrackbarRed2);
+	createTrackbar("Snare Cam1", "Views", &blueThreshold, 255, onTrackbarBlue);
+	createTrackbar("Snare Cam2", "Views", &blueThreshold2, 255, onTrackbarBlue2);
+	createTrackbar("Tom1 Cam1", "Views", &redThresholdTwo, 255, onTrackbarRed);
+	createTrackbar("Tom1 Cam2", "Views", &redThreshold2Two, 255, onTrackbarRed2);
+	createTrackbar("Tom2 Cam1", "Views", &blueThresholdTwo, 255, onTrackbarBlue);
+	createTrackbar("Tom2 Cam2", "Views", &blueThreshold2Two, 255, onTrackbarBlue2);
+	createTrackbar("FloorTom Cam1", "Views", &redThresholdThree, 255, onTrackbarRed);
+	createTrackbar("FloorTom Cam2", "Views", &redThreshold2Three, 255, onTrackbarRed2);
 
 	int count = 0;
 	Mat roi;
 	Mat roiVisible;
 
-	string soundRed = "sound/snare_hit.wav";
-	string soundBlue = "sound/hihat_hit.wav";
+	string soundRed = "sound/hihat_hit.wav";
+	string soundBlue = "sound/snare_hit.wav";
 	string soundGreen = "sound/tom1_hit.wav";
 	string soundPurple = "sound/tom2_hit.wav";
 	string soundBrown = "sound/Floortom_hit.wav";
